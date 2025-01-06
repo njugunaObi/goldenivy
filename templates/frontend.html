@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lease Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f5e7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #34495e;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 10px;
+        }
+
+        .example-hint {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: -15px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        // Function to calculate lease duration in months and days
+        function calculateLeaseDuration() {
+    const startDateInput = document.getElementById("start_date");
+    const durationInput = document.getElementById("lease_duration");
+
+    startDateInput.addEventListener("change", () => {
+        const startDate = new Date(startDateInput.value);
+        if (!isNaN(startDate.getTime())) {
+            // Add 61 months (5 years + 1 month) to start date
+            const endDate = new Date(startDate);
+            endDate.setMonth(startDate.getMonth() + 61);
+            endDate.setDate(endDate.getDate() - 1); // Subtract one day
+
+            const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const months = Math.floor(totalDays / 30);
+            const days = totalDays % 30;
+            durationInput.value = `${months} months ${days} days`;
+        }
+    });
+}
+
+        // Call the function when the page loads
+        document.addEventListener("DOMContentLoaded", calculateLeaseDuration);
+
+        // Function to dynamically display the fifth subsequent ending date
+        function calculateFifthEndDate() {
+    const startDate = document.getElementById("start_date").value;
+    
+    if (startDate) {
+        const start = new Date(startDate);
+        let endDate = new Date(start);
+        
+        // Add 5 years plus 1 month
+        endDate.setMonth(endDate.getMonth() + 61);
+        endDate.setDate(endDate.getDate() - 1); // Subtract one day
+        
+        // Format date as DD-MM-YYYY
+        const formattedDate = `${endDate.getDate().toString().padStart(2, '0')}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getFullYear()}`;
+        document.getElementById("end_date").value = formattedDate;
+    }
+}
+
+        // Function to autocalculate Monthly Rent
+        function calculateMonthlyRent() {
+            const yearlyRent = document.getElementById("yearly_rent").value;
+            if (yearlyRent) {
+                const monthlyRent = Math.round(parseInt(yearlyRent) / 12);
+                document.getElementById("monthly_rent").value = monthlyRent;
+            }
+        }
+
+        function validateLeaseForm() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    if (!startDate || !endDate) {
+        alert('Please provide both start and end dates');
+        return false;
+    }
+
+    return true;
+}
+        // date of lease entry function
+        function formatDate(input) {
+            const date = new Date(input.value);
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+            input.setAttribute('data-formatted', formattedDate);
+        }
+        // Function to send data and generate the lease document
+        function generateLease() {
+            const dateInput = document.getElementById("date_of_lease_entry");
+            const data = {
+                tenant_name: document.getElementById("tenant_name").value,
+                phone_number: document.getElementById("phone_number").value,
+                email_address: document.getElementById("email_address").value,
+                physical_location: document.getElementById("physical_location").value,
+                start_date: document.getElementById("start_date").value,
+                end_date: document.getElementById("end_date").value,
+                date_of_lease_entry: dateInput.getAttribute('data-formatted') || dateInput.value,
+                lease_duration: document.getElementById("lease_duration").value,
+                floor_plan: document.getElementById("floor_plan").value,
+                office_number: document.getElementById("office_number").value,
+                floor_number: document.getElementById("floor_number").value,
+                po_box: document.getElementById("po_box").value,
+                post_code: document.getElementById("post_code").value,
+                town: document.getElementById("town").value,
+                parking_capacity: document.getElementById("parking_capacity").value,
+                escalation_rate: document.getElementById("escalation_rate").value,
+                yearly_rent: document.getElementById("yearly_rent").value,
+                monthly_rent: document.getElementById("monthly_rent").value,
+                lease_type: document.getElementById("lease_type").value,
+                type_of_escalation: document.getElementById("type_of_escalation").value,
+            };
+
+            fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error("Error generating lease");
+                    return response.blob();
+                })
+                .then((blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "lease_document.docx";
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch((error) => {
+    console.error("Error:", error);
+    alert("Failed to generate the lease. Please check your input.");
+});
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Lease Generator</h1>
+        <form>
+            <label for="tenant_name">Tenant Name:</label>
+            <input type="text" id="tenant_name" required>
+
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" id="phone_number" required>
+
+            <label for="email_address">Email Address:</label>
+            <input type="email" id="email_address" required>
+
+            <label for="physical_location">Physical Address:</label>
+            <input type="text" id="physical_location" required>
+
+            <label for="date_of_lease_entry">Date of Lease Entry</label>
+            <input type="date" id="date_of_lease_entry" name="date_of_lease_entry" onchange="formatDate(this)" required>
+
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" required onchange="calculateLeaseDuration(); calculateFifthEndDate();">
+
+            <label for="end_date">End Date:</label>
+            <input type="text" id="end_date" readonly>
+
+            <label for="lease_duration">Lease Duration:</label>
+            <input type="text" id="lease_duration" readonly>
+
+            <label for="lease_type">Lease Type:</label>
+            <select id="lease_type">
+                <option value="New Lease">New Lease</option>
+                <option value="Renew Lease">Renew Lease</option>
+            </select>
+            <p class="example-hint">Note: For New Lease, only "1st Year of Term" applies. For Renew Lease, start from "2nd Year of Term".</p>
+
+            <label for="yearly_rent">Yearly Rent:</label>
+            <input type="number" id="yearly_rent" required oninput="calculateMonthlyRent()">
+
+            <label for="monthly_rent">Monthly Rent:</label>
+            <input type="text" id="monthly_rent" readonly>
+
+            <label for="office_number">Office Number:</label>
+            <input type="text" id="office_number" placeholder="Example One(1)">
+            <p class="example-hint">Example: One(1)</p>
+
+            <label for="floor_number">Floor Number:</label>
+            <input type="text" id="floor_number">
+            <p class="example-hint">Example: Floor Three ".</p>
+
+            <label for="po_box">PO Box:</label>
+            <input type="text" id="po_box">
+
+            <label for="post_code">Post Code:</label>
+            <input type="text" id="post_code">
+
+            <label for="town">Town of Residence:</label>
+            <input type="text" id="town">
+
+            <label for="floor_plan">Floor Plan (sq. ft):</label>
+            <input type="text" id="floor_plan">
+            <p class="example-hint">Example: 756 ".</p>
+
+            <label for="parking_capacity">Parking Capacity:</label>
+            <input type="text" id="parking_capacity">
+            <p class="example-hint">Example: two(2) ".</p>
+
+            <label for="escalation_rate">Rate of Escalation:</label>
+            <input type="text" id="escalation_rate">
+            <p class="example-hint">Example: Ten(10)% ".</p>
+
+            <label for="type_of_escalation">Type of Escalation</label>
+            <select id="type_of_escalation" name="type_of_escalation" required>
+            <option value="yearly">Yearly</option>
+            <option value="afterfirsttwoyears">After First Two Years</option>
+            <option value="everytwoyears">Every Two Years</option>
+            </select>
+
+            <button type="button" onclick="generateLease()">Generate Lease</button>
+
+        </form>
+
+    </div>
+</body>
+</html>
+
+
