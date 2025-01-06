@@ -72,23 +72,25 @@
     </style>
     <script>
         // Function to calculate lease duration in months and days
-        function calculateLeaseDuration() {
-    const startDateInput = document.getElementById("start_date");
-    const durationInput = document.getElementById("lease_duration");
+        function updateDatesFromBackend() {
+    const startDate = document.getElementById("start_date").value;
+    if (!startDate) return;
 
-    startDateInput.addEventListener("change", () => {
-        const startDate = new Date(startDateInput.value);
-        if (!isNaN(startDate.getTime())) {
-            // Add 61 months (5 years + 1 month) to start date
-            const endDate = new Date(startDate);
-            endDate.setMonth(startDate.getMonth() + 61);
-            endDate.setDate(endDate.getDate() - 1); // Subtract one day
-
-            const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
-            const months = Math.floor(totalDays / 30);
-            const days = totalDays % 30;
-            durationInput.value = `${months} months ${days} days`;
+    fetch("/calculate-dates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start_date: startDate }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
         }
+        document.getElementById("end_date").value = data.fifthEndDate;
+        document.getElementById("lease_duration").value = data.leaseDuration;
+    })
+    .catch(error => {
+        console.error("Error:", error);
     });
 }
 
@@ -172,6 +174,15 @@
             })
                 .then((response) => {
                     if (!response.ok) throw new Error("Error generating lease");
+                    
+                    // Get the calculated values from response headers
+                    const fifthEndDate = response.headers.get('X-Fifth-End-Date');
+                    const leaseDuration = response.headers.get('X-Lease-Duration');
+                    
+                    // Update the frontend fields
+                    document.getElementById("end_date").value = fifthEndDate;
+                    document.getElementById("lease_duration").value = leaseDuration;
+                    
                     return response.blob();
                 })
                 .then((blob) => {
@@ -209,7 +220,7 @@
             <input type="date" id="date_of_lease_entry" name="date_of_lease_entry" onchange="formatDate(this)" required>
 
             <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date" required onchange="calculateLeaseDuration(); calculateFifthEndDate();">
+            <input type="date" id="start_date" required onchange="updateDatesFromBackend();">
 
             <label for="end_date">End Date:</label>
             <input type="text" id="end_date" readonly>
@@ -273,5 +284,3 @@
     </div>
 </body>
 </html>
-
-

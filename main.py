@@ -57,8 +57,8 @@ def calculate_years_of_term(start_date):
         # Start date for the current year
         year_start = current_date
 
-        # End date is one year plus one day from the start date
-        year_end = year_start + relativedelta(years=1) + timedelta(days=1)
+        # End date is one year minus one day from the start date
+        year_end = year_start + relativedelta(years=1) - timedelta(days=1)
 
         # Add an extra month to the fifth subsequent ending date
         if year == 4:  # The fifth year (0-indexed)
@@ -87,18 +87,6 @@ def calculate_remainder(years_of_term):
     end_of_month = next_month.replace(day=1) - timedelta(days=1)
     return start_of_month.strftime("%d/%m/%Y"), end_of_month.strftime(
         "%d/%m/%Y")
-
-def generate_replacements(data, escalated_rents):
-    fifth_end_date = years_of_term[4][1] if len(years_of_term) >= 5 else None
-    remainder_start, remainder_end = calculate_remainder(years_of_term)
-
-    replacements = {
-        # ... (previous replacements remain the same)
-        "Remainder Beginning Date": remainder_start,
-        "Remainder Ending Date": remainder_end
-    }
-
-    return replacements
 
 # Serve the frontend page
 @app.route("/")
@@ -151,9 +139,12 @@ def generate_lease():
 
         # Calculate fifth end date and remainder dates
         fifth_end_date = datetime.strptime(years_of_term[4][1], "%d/%m/%Y")
-        lease_duration = (fifth_end_date -start_date_obj).days // 30  # Approximate months
+        duration = fifth_end_date - start_date_obj
+        total_days = duration.days
+        months = total_days // 30
+        remaining_days = total_days % 30
+        lease_duration = f"{months} months {remaining_days} days"
         remainder_dates = calculate_remainder(years_of_term)
-        
         
 
         # Standardize date formats in years_of_term
@@ -407,78 +398,45 @@ def generate_lease():
             """
             # Basic replacements from input data
             replacements = {
-                "Tenant Name":
-                data.get("tenant_name", "").upper(),
-                "Phone Number":
-                data.get("phone_number", ""),
-                "Email Address":
-                data.get("email_address", ""),
-                "Physical Location":
-                data.get("physical_location", ""),
-                "Office Number":
-                data.get("office_number", ""),
-                "Floor Number":
-                data.get("floor_number", "").upper(),
-                "Date of Lease Entry":
-                format_date(data.get("date_of_lease_entry")),
-                "Start Date":
-                format_date(data.get("start_date")),
-                "End Date":
-                format_date(data.get("fifth_end_date")),
-                "Start_Date_in_words":
-                date_to_words(data.get("start_date")),
-                "End_Date_in_words":
-                date_to_words(fifth_end_date) if fifth_end_date else "",
-                "New or Renew":
-                data.get("new_or_renew", ""),
-                "Yearly Rent":
-                f"{number_to_words(yearly_rent)}: KSH {yearly_rent}",
-                "Monthly Rent":
-                f"{number_to_words(monthly_rent)}: KSH {monthly_rent}",
-                "Lease Term":
-                data.get("lease_duration", ""),
-                "PO Box number":
-                data.get("po_box", ""),
-                "post code":
-                data.get("post_code", ""),
-                "Town of residence":
-                data.get("town", ""),
-                "Floor plan in Sq foot":
-                data.get("floor_plan", ""),
-                "Parking Capacity":
-                data.get("parking_capacity", ""),
-                "Rate of escalation":
-                format_rate_of_escalation(data["escalation_rate"]),
-                "Type of escalation":
-                format_type_of_escalation(data["type_of_escalation"]),
-                "Floor of office":
-                format_floor_number(data["floor_number"]),
-                "Lease Beginning Date":
-                format_lease_beginning_date(data["start_date"]),
-                # Add subsequent dates from years_of_term
-                "First Subsequent Ending Date":
-                formatted_years[0][1],
-                "Second Subsequent Starting Date":
-                formatted_years[1][0],
-                "Second Subsequent Ending Date":
-                formatted_years[1][1],
-                "Third Subsequent Starting Date":
-                formatted_years[2][0],
-                "Third Subsequent Ending Date":
-                formatted_years[2][1],
-                "Fourth Subsequent Starting Date":
-                formatted_years[3][0],
-                "Fourth Subsequent Ending Date":
-                formatted_years[3][1],
-                "Fifth Subsequent Starting Date":
-                formatted_years[4][0],
-                "Fifth Subsequent Ending Date":
-                formatted_years[4][1],
-                "Remainder Beginning Date":
-                remainder_dates[0],
-                "Remainder Ending Date":
-                remainder_dates[1]
-            }
+        
+        # Rest of your existing replacements
+        "Tenant Name": data.get("tenant_name", "").upper(),
+        "Phone Number": data.get("phone_number", ""),
+        "Email Address": data.get("email_address", ""),
+        "Physical Location": data.get("physical_location", ""),
+        "Office Number": data.get("office_number", ""),
+        "Floor Number": data.get("floor_number", "").upper(),
+        "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
+        "Start Date": format_date(data.get("start_date")),
+        "End Date": format_date(data.get("fifth_end_date")),
+        "Start_Date_in_words": date_to_words(data.get("start_date")),
+        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else "",
+        "New or Renew": data.get("new_or_renew", ""),
+        "Yearly Rent": f"{number_to_words(yearly_rent)}: KSH {yearly_rent}",
+        "Monthly Rent": f"{number_to_words(monthly_rent)}: KSH {monthly_rent}",
+        "Lease Term": data.get("lease_duration", ""),
+        "PO Box number": data.get("po_box", ""),
+        "post code": data.get("post_code", ""),
+        "Town of residence": data.get("town", ""),
+        "Floor plan in Sq foot": data.get("floor_plan", ""),
+        "Parking Capacity": data.get("parking_capacity", ""),
+        "Rate of escalation": format_rate_of_escalation(data["escalation_rate"]),
+        "Type of escalation": format_type_of_escalation(data["type_of_escalation"]),
+        "Floor of office": format_floor_number(data["floor_number"]),
+        "Lease Beginning Date": format_lease_beginning_date(data["start_date"]),
+        "First Subsequent Ending Date": formatted_years[0][1],
+        "Second Subsequent Starting Date": formatted_years[1][0],
+        "Second Subsequent Ending Date": formatted_years[1][1],
+        "Third Subsequent Starting Date": formatted_years[2][0],
+        "Third Subsequent Ending Date": formatted_years[2][1],
+        "Fourth Subsequent Starting Date": formatted_years[3][0],
+        "Fourth Subsequent Ending Date": formatted_years[3][1],
+        "Fifth Subsequent Starting Date": formatted_years[4][0],
+        "Fifth Subsequent Ending Date": formatted_years[4][1],
+        "Remainder Beginning Date": remainder_dates[0],
+        "Remainder Ending Date": remainder_dates[1]
+    }
+
 
             # Add escalation-related replacements
             escalation_replacements = replace_escalation_terms(escalated_rents)
@@ -588,17 +546,45 @@ def generate_lease():
         # Save the updated document
         document.save(output_path)
 
-        # Send the generated document to the client
-        return send_file(output_path, as_attachment=True)
+        # Right before returning the file, create a JSON response with the calculated values
+        response = send_file(output_path, as_attachment=True)
+        response.headers['X-Fifth-End-Date'] = years_of_term[4][1]  # Fifth subsequent ending date
+        response.headers['X-Lease-Duration'] = lease_duration
+        return response
 
-    # In your generate_lease function, replace the generic exception handler
     except Exception as e:
         logger.error(f"Lease generation error: {str(e)}", exc_info=True)
         return jsonify({
-            "error":
-            "Failed to generate the lease. Please check your input and try again."
+            "error": "Failed to generate the lease. Please check your input and try again."
         }), 500
+
+@app.route("/calculate-dates", methods=["POST"])
+def calculate_dates():
+    try:
+        start_date = request.json.get("start_date")
+        if not start_date:
+            return jsonify({"error": "Start date is required"}), 400
+
+        years_of_term = calculate_years_of_term(start_date)
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+        fifth_end_date = datetime.strptime(years_of_term[4][1], "%d/%m/%Y")
+        
+        # Calculate exact duration
+        duration = fifth_end_date - start_date_obj
+        total_days = duration.days
+        months = total_days // 30
+        remaining_days = total_days % 30
+
+        lease_duration = f"{months} months {remaining_days} days"
+
+        return jsonify({
+            "fifthEndDate": years_of_term[4][1],
+            "leaseDuration": lease_duration
+        })
+
+    except Exception as e:
+        logger.error(f"Date calculation error: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
-
