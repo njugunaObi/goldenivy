@@ -328,7 +328,7 @@ def generate_lease():
                 # Add new replacement for remaining year monthly calculation
                 final_monthly_rent = escalated_rents[-1] // 12  # Get monthly rent from last year
                 final_monthly_words = monthly_rent_words
-                escalation_replacements["Remaining Year of Term Monthly Calculation"] = f"{final_monthly_words} Only (KSH:{final_monthly_rent}/-)"
+                escalation_replacements["Remaining Year of Term Monthly Calculation"] = f"{final_monthly_words} Only (KSH {final_monthly_rent}/-)"
 
             return escalation_replacements
 
