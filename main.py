@@ -9,7 +9,6 @@ import calendar
 import logging
 import re
 import inflect
-from docx.enum.text import WD_UNDERLINE
 
 # call inflect
 p = inflect.engine()
@@ -590,47 +589,6 @@ def calculate_dates():
     except Exception as e:
         logger.error(f"Date calculation error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
-def replace_table_text_with_formatting(document, replacements):
-    for table in document.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        for key, value in replacements.items():
-                            if key in run.text:
-                                new_text = run.text.replace(key, value["text"])
-                                run.text = new_text
-                                if value.get("format", {}).get("underline"):
-                                    run.font.underline = WD_UNDERLINE.SINGLE
-
-def generate_replacements(data, years_of_term, remainder_dates):
-    return {
-        "1st Year of Term": {
-            "text": f"1st Year of Term: ({years_of_term[0][0]} to {years_of_term[0][1]})",
-            "format": {"underline": True}
-        },
-        "2nd Year of Term": {
-            "text": f"2nd Year of Term: ({years_of_term[1][0]} to {years_of_term[1][1]})",
-            "format": {"underline": True}
-        },
-        "3rd Year of Term": {
-            "text": f"3rd Year of Term: ({years_of_term[2][0]} to {years_of_term[2][1]})",
-            "format": {"underline": True}
-        },
-        "4th Year of Term": {
-            "text": f"4th Year of Term: ({years_of_term[3][0]} to {years_of_term[3][1]})",
-            "format": {"underline": True}
-        },
-        "5th Year of Term": {
-            "text": f"5th Year of Term: ({years_of_term[4][0]} to {years_of_term[4][1]})",
-            "format": {"underline": True}
-        },
-        "One (1) Month being the remainder of the term": {
-            "text": f"One (1) Month being the remainder of the term: ({remainder_dates[0]} to {remainder_dates[1]})",
-            "format": {"underline": True}
-        }
-    }
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
