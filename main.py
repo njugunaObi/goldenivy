@@ -322,9 +322,9 @@ def generate_lease():
                 monthly_key = f"{ordinal_suffix} Year of Term Monthly Calculation"
 
                 escalation_replacements[
-                    yearly_key] = f"{rent_words}: KSH {rent}"
+                    yearly_key] = f"{rent_words} Only: KSH ({rent}/-)"
                 escalation_replacements[
-                    monthly_key] = f"{monthly_rent_words}: KSH {monthly_rent}"
+                    monthly_key] = f"KSH {monthly_rent} Monthly Rent"
 
             return escalation_replacements
 
@@ -412,8 +412,8 @@ def generate_lease():
         "Start_Date_in_words": date_to_words(data.get("start_date")),
         "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else "",
         "New or Renew": data.get("new_or_renew", ""),
-        "Yearly Rent": f"{number_to_words(yearly_rent)}: KSH {yearly_rent}",
-        "Monthly Rent": f"{number_to_words(monthly_rent)}: KSH {monthly_rent}",
+        "Yearly Rent": f"{number_to_words(yearly_rent)}: KSH ({yearly_rent}/-)",
+        "Monthly Rent": f"KSH {monthly_rent}",
         "Lease Term": data.get("lease_duration", ""),
         "PO Box number": data.get("po_box", ""),
         "post code": data.get("post_code", ""),
