@@ -9,6 +9,7 @@ import calendar
 import logging
 import re
 import inflect
+from docx.enum.text import WD_UNDERLINE
 
 # call inflect
 p = inflect.engine()
@@ -438,7 +439,14 @@ def generate_lease():
         "Fifth Subsequent Starting Date": formatted_years[4][0],
         "Fifth Subsequent Ending Date": formatted_years[4][1],
         "Remainder Beginning Date": remainder_dates[0],
-        "Remainder Ending Date": remainder_dates[1]
+        "Remainder Ending Date": remainder_dates[1],
+        # Terms to be underlined
+        "1st Year of Term": "1st Year of Term",
+        "2nd Year of Term": "2nd Year of Term",
+        "3rd Year of Term": "3rd Year of Term",
+        "4th Year of Term": "4th Year of Term",
+        "5th Year of Term": "5th Year of Term",
+        "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term"
     }
 
 
@@ -487,6 +495,15 @@ def generate_lease():
                         if key in paragraph.text:
                             paragraph.text = paragraph.text.replace(
                                 key, str(value))
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, value)
+                                        run.font.underline = WD_UNDERLINE.SINGLE
+                            else:
+                                paragraph.text = paragraph.text.replace(key, value)
 
             # Process document sections
             for paragraph in document.paragraphs:
