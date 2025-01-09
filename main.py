@@ -418,7 +418,7 @@ def generate_lease():
         "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else "",
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
-        "Monthly Rent": f"KSH {monthly_rent}/- Monthly Rent",
+        "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
         "Lease Term": data.get("lease_duration", ""),
         "PO Box number": data.get("po_box", ""),
         "post code": data.get("post_code", ""),
