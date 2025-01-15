@@ -75,7 +75,6 @@ def calculate_years_of_term(start_date):
 
     return dates
 
-
 # Helper function: Calculate remainder dates
 def calculate_remainder(years_of_term):
     if len(years_of_term) < 5:
@@ -476,7 +475,6 @@ def generate_lease():
         
     }
 
-
             # Add escalation-related replacements
             escalation_replacements = replace_escalation_terms(escalated_rents)
 
@@ -490,104 +488,58 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-            def replace_in_paragraph(paragraph, is_table=False, is_first_page=False):
+
+            def replace_in_paragraph(paragraph, is_table=False):
                 if "Tenant Name" in paragraph.text:
+                    # Store original text
                     original_text = paragraph.text
-                    new_text = original_text.replace("Tenant Name", str(replacements["Tenant Name"]))
+
+                    # Replace Tenant Name while preserving other text
+                    new_text = original_text.replace(
+                        "Tenant Name", str(replacements["Tenant Name"]))
+
+                    # Clear paragraph
                     paragraph.clear()
+
+                    # Split text into parts
                     parts = new_text.split(str(replacements["Tenant Name"]))
+
+                    # Rebuild paragraph with correct formatting
                     for i, part in enumerate(parts):
-                        if i > 0:
-                            run = paragraph.add_run(str(replacements["Tenant Name"]))
+                        if i > 0:  # Add tenant name before remaining parts
+                            run = paragraph.add_run(
+                                str(replacements["Tenant Name"]))
                             run.bold = True
                             run.font.size = Pt(12 if is_table else 14)
-                        if part:
+                        if part:  # Add non-tenant name part
                             run = paragraph.add_run(part)
                             run.bold = False
-                    return
-
-                for key, value in replacements.items():
-                    if key in paragraph.text:
-                        # Special handling for Date of Lease Entry
-                        if key == "Date of Lease Entry" and value:
-                            try:
-                                date_obj = datetime.strptime(value, "%d/%m/%Y")
-                                formatted_date = date_obj.strftime("%-d{suffix} %B %Y").format(
-                                    suffix='th' if 11 <= date_obj.day <= 13 else 
-                                    {1:'st', 2:'nd', 3:'rd'}.get(date_obj.day % 10, 'th')
-                                )
-                                paragraph.text = paragraph.text.replace(key, formatted_date)
-                            except:
-                                paragraph.text = paragraph.text.replace(key, value)
-                            continue
-
+                else:
+                    # Handle other replacements without formatting
+                    for key, value in replacements.items():
+                        if key in paragraph.text:
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
                         # Handle terms that need underlining
-                        if "Year of Term" in key or key == "One (1) Month being the remainder of the term" or key == "Start_Date_in_words" or key == "End_Date_in_words":
-                            for run in paragraph.runs:
-                                if key in run.text:
-                                    run.text = run.text.replace(key, value)
-                                    run.font.underline = WD_UNDERLINE.SINGLE
-                            continue
-
-                        # Special formatting for first page
-                        if "LETTING OF OFFICE" in paragraph.text:
-                            for run in paragraph.runs:
-                                if "LETTING OF OFFICE" in run.text:
-                                    run.bold = True
-
-                        # Handle Office Number formatting
-                        if key == "Office Number":
-                            if is_first_page:
-                                paragraph.text = paragraph.text.replace(key, key + " " + value.upper())
+                        if key in paragraph.text and key != "Tenant Name":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term" or key=="Start_Date_in_words" or key=="End_Date_in_words":
                                 for run in paragraph.runs:
-                                    if value.upper() in run.text:
-                                        run.bold = True
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, value)
+                                        run.font.underline = WD_UNDERLINE.SINGLE
                             else:
-                                paragraph.text = paragraph.text.replace(key, key + " " + value)
-                                for run in paragraph.runs:
-                                    if value in run.text:
-                                        run.bold = True
-                            continue
+                                paragraph.text = paragraph.text.replace(key, value)
 
-                        # Handle Floor Number formatting
-                        if key == "Floor Number" and is_first_page:
-                            paragraph.text = paragraph.text.replace(key, key + " " + value)
-                            for run in paragraph.runs:
-                                if value in run.text:
-                                    run.bold = True
-                            continue
+            # Process document sections
+            for paragraph in document.paragraphs:
+                replace_in_paragraph(paragraph)
 
-                        # Handle Parking Capacity formatting
-                        if key == "Parking Capacity":
-                            paragraph.text = paragraph.text.replace(key, key + " " + value)
-                            for run in paragraph.runs:
-                                if value in run.text:
-                                    run.bold = True
-                            continue
-
-                        # Handle "designated parking spaces"
-                        if "designated parking spaces" in paragraph.text.lower():
-                            for run in paragraph.runs:
-                                if "designated parking spaces" in run.text.lower():
-                                    run.bold = True
-                            continue
-
-                        # Default replacement
-                        paragraph.text = paragraph.text.replace(key, str(value))
-
-            # Process main document
-            for i, paragraph in enumerate(document.paragraphs):
-                is_first_page = i < 10  # First 10 paragraphs considered as first page
-                replace_in_paragraph(paragraph, is_first_page=is_first_page)
-
-            # Process tables
             for table in document.tables:
                 for row in table.rows:
                     for cell in row.cells:
                         for paragraph in cell.paragraphs:
                             replace_in_paragraph(paragraph, is_table=True)
 
-            # Process headers and footers
             for section in document.sections:
                 for header_footer in [section.header, section.footer]:
                     if header_footer:
@@ -684,3 +636,6 @@ def calculate_dates():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+
+
+
