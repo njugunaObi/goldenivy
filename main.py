@@ -335,8 +335,6 @@ def generate_lease():
         # Formatted functions for floor number, rate of escalation and type of escalation, lease beginning date
         def format_lease_beginning_date(date_str):
             """Format date as '1st January 2025'"""
-            if not date_str:
-                return ""
             date_obj, _ = parse_and_format_date(date_str)
             day = date_obj.day
             suffix = {
@@ -438,7 +436,7 @@ def generate_lease():
         "Physical Location": data.get("physical_location", ""),
         "Office Number": data.get("office_number", ""),
         "Floor Number": data.get("floor_number", "").upper(),
-        "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
+        "Date of Lease Entry": format_lease_date(data.get("date_of_lease_entry", "")),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
         "New or Renew": data.get("new_or_renew", ""),
@@ -491,78 +489,47 @@ def generate_lease():
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
             def replace_in_paragraph(paragraph, is_table=False):
-                original_text = paragraph.text
+                if "Tenant Name" in paragraph.text:
+                    # Store original text
+                    original_text = paragraph.text
 
-                # Special handling for paragraphs with specific terms
-                special_terms = {
-                    "designated Office": True,
-                    "designated parking spaces": True,
-                    "LETTING OF OFFICE": True
-                }
+                    # Replace Tenant Name while preserving other text
+                    new_text = original_text.replace(
+                        "Tenant Name", str(replacements["Tenant Name"]))
 
-                # Check for special bold terms first
-                if any(term in original_text for term in special_terms):
+                    # Clear paragraph
                     paragraph.clear()
-                    parts = original_text
-                    for term in special_terms:
-                        if term in parts:
-                            parts_split = parts.split(term)
-                            for i, part in enumerate(parts_split):
-                                if i > 0:
-                                    run = paragraph.add_run(term)
-                                    run.bold = True
-                                if part:
-                                    run = paragraph.add_run(part)
-                                    run.bold = False
-                            parts = ''.join(parts_split)
-                    return
 
-                # Handle date formatting
-                if "Date of Lease Entry" in original_text:
-                    value = format_lease_beginning_date(replacements.get("date_of_lease_entry", ""))
-                    original_text = original_text.replace("Date of Lease Entry", value)
+                    # Split text into parts
+                    parts = new_text.split(str(replacements["Tenant Name"]))
 
-                # Handle tenant name, parking capacity, office number, and floor number
-                for key in ["Tenant Name", "Parking Capacity", "Office Number", "Floor Number"]:
-                    if key in original_text:
-                        paragraph.clear()
-                        parts = original_text.split(str(replacements[key]))
-                        for i, part in enumerate(parts):
-                            if i > 0:
-                                run = paragraph.add_run(str(replacements[key]))
-                                run.bold = True
-                                run.font.size = Pt(12 if is_table else 14)
-                            if part:
-                                run = paragraph.add_run(part)
-                                run.bold = False
-                        return
+                    # Rebuild paragraph with correct formatting
+                    for i, part in enumerate(parts):
+                        if i > 0:  # Add tenant name before remaining parts
+                            run = paragraph.add_run(
+                                str(replacements["Tenant Name"]))
+                            run.bold = True
+                            run.font.size = Pt(12 if is_table else 14)
+                        if part:  # Add non-tenant name part
+                            run = paragraph.add_run(part)
+                            run.bold = False
+                else:
+                    # Handle other replacements without formatting
+                    for key, value in replacements.items():
+                        if key in paragraph.text:
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, value)
+                                        run.font.underline = WD_UNDERLINE.SINGLE
+                            else:
+                                paragraph.text = paragraph.text.replace(key, value)
 
-                # Handle Start_Date_in_words and End_Date_in_words with underlining
-                for key in ["Start_Date_in_words", "End_Date_in_words"]:
-                    if key in original_text:
-                        paragraph.clear()
-                        before, middle, after = original_text.partition(key)
-                        if before:
-                            paragraph.add_run(before)
-                        if middle:
-                            run = paragraph.add_run(str(replacements[key]))
-                            run.underline = WD_UNDERLINE.SINGLE
-                        if after:
-                            paragraph.add_run(after)
-                        return
-
-                # Handle other replacements
-                for key, value in replacements.items():
-                    if key in paragraph.text:
-                        if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                            for run in paragraph.runs:
-                                if key in run.text:
-                                    run.text = run.text.replace(key, str(value))
-                                    run.font.underline = WD_UNDERLINE.SINGLE
-                        else:
-                            paragraph.text = paragraph.text.replace(key, str(value))
-
-            # Process all document sections
+            # Process document sections
             for paragraph in document.paragraphs:
                 replace_in_paragraph(paragraph)
 
@@ -577,7 +544,6 @@ def generate_lease():
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
                             replace_in_paragraph(paragraph)
-
 
 
         replace_text_with_formatting(document, replacements)
@@ -665,6 +631,21 @@ def calculate_dates():
     except Exception as e:
         logger.error(f"Date calculation error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+def format_lease_date(date_str):
+    """Convert date from dd/mm/yyyy to format like '16th January 2025'"""
+    try:
+        if '/' in date_str:
+            date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+        else:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        
+        day = date_obj.day
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10 if day % 100 not in [11, 12, 13] else 0, 'th')
+        return f"{day}{suffix} {date_obj.strftime('%B %Y')}"
+    except ValueError as e:
+        logger.error(f"Date formatting error: {str(e)}")
+        return date_str
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
