@@ -357,7 +357,30 @@ def generate_lease():
                 'seven': 'Seventh',
                 'eight': 'Eighth',
                 'nine': 'Ninth',
-                'ten': 'Tenth'
+                'ten': 'Tenth',
+                'eleven': 'Eleventh',
+                'twelve': 'Twelfth',
+                'thirteen': 'Thirteenth',
+                'fourteen': 'Fourteenth',
+                'fifteen': 'Fifteenth',
+                'sixteen': 'Sixteenth',
+                'seventeen': 'Seventeenth',
+                'eighteen': 'Eighteenth',
+                'nineteen': 'Nineteenth',
+                'twenty': 'Twentieth',
+                'twenty one': 'Twenty-first',
+                'twenty two': 'Twenty-second',
+                'twenty three': 'Twenty-third',
+                'twenty four': 'Twenty-fourth',
+                'twenty five': 'Twenty-fifth',
+                'twenty six': 'Twenty-sixth',
+                'twenty seven': 'Twenty-seventh',
+                'twenty eight': 'Twenty-eighth',
+                'twenty nine': 'Twenty-ninth',
+                'thirty': 'Thirtieth',
+                'attic': 'Attic',
+                'ground': 'Ground',
+                'basement': 'Basement'
             }
             floor = floor_num.lower().replace('floor', '').strip()
             return f"{number_mapping.get(floor, floor)} Floor"
@@ -446,7 +469,9 @@ def generate_lease():
         "3rd Year of Term": "3rd Year of Term",
         "4th Year of Term": "4th Year of Term",
         "5th Year of Term": "5th Year of Term",
-        "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term"
+        "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
+        "Start_Date_in_words": "Start_Date_in_words",
+        "End_Date_in_words": "End_Date_in_words",
     }
 
 
@@ -497,7 +522,7 @@ def generate_lease():
                                 key, str(value))
                         # Handle terms that need underlining
                         if key in paragraph.text and key != "Tenant Name":
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term" or key=="Start_Date_in_words" or key=="End_Date_in_words":
                                 for run in paragraph.runs:
                                     if key in run.text:
                                         run.text = run.text.replace(key, value)
