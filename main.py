@@ -379,8 +379,11 @@ def generate_lease():
                 'twenty nine': 'Twenty-ninth',
                 'thirty': 'Thirtieth',
                 'attic': 'Attic',
+                'Attic': 'Attic',
                 'ground': 'Ground',
-                'basement': 'Basement'
+                'Ground': 'Ground',
+                'basement': 'Basement',
+                'Basement': 'Basement',
             }
             floor = floor_num.lower().replace('floor', '').strip()
             return f"{number_mapping.get(floor, floor)} Floor"
@@ -437,8 +440,6 @@ def generate_lease():
         "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
-        "Start_Date_in_words": date_to_words(data.get("start_date")),
-        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else "",
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -470,8 +471,9 @@ def generate_lease():
         "4th Year of Term": "4th Year of Term",
         "5th Year of Term": "5th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
-        "Start_Date_in_words": "Start_Date_in_words",
-        "End_Date_in_words": "End_Date_in_words",
+        "Start_Date_in_words": date_to_words(data.get("start_date")),
+        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
+        
     }
 
 
@@ -545,6 +547,7 @@ def generate_lease():
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
                             replace_in_paragraph(paragraph)
+
 
         replace_text_with_formatting(document, replacements)
 
