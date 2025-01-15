@@ -517,17 +517,27 @@ def generate_lease():
                     # Handle other replacements without formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
-                            paragraph.text = paragraph.text.replace(
-                                key, str(value))
-                        # Handle terms that need underlining
-                        if key in paragraph.text and key != "Tenant Name":
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                for run in paragraph.runs:
-                                    if key in run.text:
-                                        run.text = run.text.replace(key, value)
+                            # Handle terms that need underlining
+                            if (("Year of Term" in key) or 
+                                (key == "Start_Date_in_words") or 
+                                (key == "End_Date_in_words") or 
+                                (key == "One (1) Month being the remainder of the term")):
+                                
+                                original_text = paragraph.text
+                                paragraph.clear()
+                                parts = original_text.split(key)
+                                
+                                for i, part in enumerate(parts):
+                                    if i > 0:
+                                        # Add the replacement with underlining
+                                        run = paragraph.add_run(str(value))
                                         run.font.underline = WD_UNDERLINE.SINGLE
+                                    if part:
+                                        # Add the regular text
+                                        run = paragraph.add_run(part)
+                                return
                             else:
-                                paragraph.text = paragraph.text.replace(key, value)
+                                paragraph.text = paragraph.text.replace(key, str(value))
 
             # Process document sections
             for paragraph in document.paragraphs:
