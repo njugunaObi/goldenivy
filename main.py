@@ -470,8 +470,8 @@ def generate_lease():
         "4th Year of Term": "4th Year of Term",
         "5th Year of Term": "5th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
-        "Startwords": date_to_words(data.get("start_date")),
-        "Endwords": date_to_words(fifth_end_date) if fifth_end_date else ""
+        "Start_Date_in_words": date_to_words(data.get("start_date")),
+        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
         
     }
 
@@ -519,8 +519,8 @@ def generate_lease():
                         if key in paragraph.text:
                             # Handle terms that need underlining
                             if (("Year of Term" in key) or 
-                                (key == "Startwords") or 
-                                (key == "Endwords") or 
+                                (key == "Start_Date_in_words") or 
+                                (key == "End_Date_in_words") or 
                                 (key == "One (1) Month being the remainder of the term")):
                                 
                                 original_text = paragraph.text
