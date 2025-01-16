@@ -518,11 +518,7 @@ def generate_lease():
                     for key, value in replacements.items():
                         if key in paragraph.text:
                             # Handle terms that need underlining
-                            if (("Year of Term" in key) or 
-                                (key == "Start_Date_in_words") or 
-                                (key == "End_Date_in_words") or 
-                                (key == "One (1) Month being the remainder of the term")):
-                                
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
                                 original_text = paragraph.text
                                 paragraph.clear()
                                 parts = original_text.split(key)
@@ -557,6 +553,62 @@ def generate_lease():
 
 
         replace_text_with_formatting(document, replacements)
+
+        # underlining of dates
+        def underline_dates(document, replacements):
+            """
+            Underline specific placeholders in the document.
+            """
+            for paragraph in document.paragraphs:
+                for key in ["Start_Date_in_words", "End_Date_in_words"]:
+                    if key in paragraph.text:
+                        parts = paragraph.text.split(key)
+                        paragraph.clear()
+                        for i, part in enumerate(parts):
+                            if i > 0:
+                                run = paragraph.add_run(replacements[key])
+                                run.underline = WD_UNDERLINE.SINGLE
+                            if part:
+                                paragraph.add_run(part)
+
+        # formatting changes
+        def apply_formatting_general(document):
+            """
+            Apply formatting for general text such as "LETTING OF OFFICE" and "designated parking spaces".
+            """
+            for paragraph in document.paragraphs:
+                if "LETTING OF OFFICE" in paragraph.text:
+                    make_text_bold(paragraph, "LETTING OF OFFICE", "LETTING OF OFFICE")
+                if "designated parking spaces" in paragraph.text:
+                    make_text_bold(paragraph, "designated parking spaces", "designated parking spaces")
+
+        # formatting changes number 2
+        def apply_formatting_specific(document, replacements):
+            """
+            Apply formatting for specific placeholders such as "Office Number," "Floor Number," and "designated Office."
+            """
+            for paragraph in document.paragraphs:
+                if "Office Number" in paragraph.text:
+                    make_text_bold(paragraph, "Office Number", replacements.get("office_number", ""))
+                if "Floor Number" in paragraph.text:
+                    make_text_bold(paragraph, "Floor Number", replacements.get("floor_number", "").upper())
+                if "designated Office" in paragraph.text:
+                    make_text_bold(paragraph, "designated Office", replacements.get("designated Office", ""))
+
+        # Function to make specific text bold
+        def make_text_bold(paragraph, text_to_bold, replacement_value):
+            """
+            Make specific text bold while replacing it with a value if provided.
+            """
+            if text_to_bold in paragraph.text:
+                parts = paragraph.text.split(text_to_bold)
+                paragraph.clear()
+                for i, part in enumerate(parts):
+                    if part:
+                        paragraph.add_run(part).bold = False
+                    if i < len(parts) - 1:
+                        bold_run = paragraph.add_run(replacement_value if replacement_value else text_to_bold)
+                        bold_run.bold = True
 
         # logging of keys that have not been replaced
         def log_unmatched_keys(replacements, document):
@@ -595,6 +647,15 @@ def generate_lease():
 
         # Call the function to replace placeholders in the document
         replace_text_with_formatting(document, replacements)
+        
+        # Underline specific dates
+        underline_dates(document, replacements)
+        
+        # Apply additional formatting
+        apply_formatting_general(document)
+        
+        # Apply additional formatting
+        apply_formatting_specific(document, replacements)
 
         # Log any unreplaced keys - Add this line right before saving the document
         log_unmatched_keys(replacements, document)
