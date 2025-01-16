@@ -554,48 +554,34 @@ def generate_lease():
 
         replace_text_with_formatting(document, replacements)
 
-        # underlining of dates
-        def underline_dates(document, replacements):
+        formatting_rules = {
+    "LETTING OF OFFICE": {"bold": True},
+    "designated parking spaces": {"bold": True},
+    "Office Number": {"bold": True},
+    "Floor Number": {"bold": True},
+    "designated Office": {"bold": True},
+    "Start_Date_in_words": {"underline": True},
+    "End_Date_in_words": {"underline": True}
+}
+
+        # cosmetic formatting changes
+        def apply_formatting(document, formatting_rules, replacements):
             """
-            Underline specific placeholders in the document.
+            Apply dynamic formatting rules to the document based on predefined rules.
+            Args:
+                document (Document): The Word document to format.
+                formatting_rules (dict): A dictionary defining the text to format and its attributes.
+                replacements (dict): A dictionary of replacements for placeholders.
             """
             for paragraph in document.paragraphs:
-                for key in ["Start_Date_in_words", "End_Date_in_words"]:
-                    if key in paragraph.text:
-                        parts = paragraph.text.split(key)
-                        paragraph.clear()
-                        for i, part in enumerate(parts):
-                            if i > 0:
-                                run = paragraph.add_run(replacements[key])
-                                run.underline = WD_UNDERLINE.SINGLE
-                            if part:
-                                paragraph.add_run(part)
+                for text_to_format, attributes in formatting_rules.items():
+                    if text_to_format in paragraph.text:
+                        make_text_bold(paragraph, text_to_format, replacements.get(text_to_format, attributes.get("replacement", text_to_format)))
+                        if attributes.get("underline", False):
+                            underline_text(paragraph, text_to_format)
 
-        # formatting changes
-        def apply_formatting_general(document):
-            """
-            Apply formatting for general text such as "LETTING OF OFFICE" and "designated parking spaces".
-            """
-            for paragraph in document.paragraphs:
-                if "LETTING OF OFFICE" in paragraph.text:
-                    make_text_bold(paragraph, "LETTING OF OFFICE", "LETTING OF OFFICE")
-                if "designated parking spaces" in paragraph.text:
-                    make_text_bold(paragraph, "designated parking spaces", "designated parking spaces")
 
-        # formatting changes number 2
-        def apply_formatting_specific(document, replacements):
-            """
-            Apply formatting for specific placeholders such as "Office Number," "Floor Number," and "designated Office."
-            """
-            for paragraph in document.paragraphs:
-                if "Office Number" in paragraph.text:
-                    make_text_bold(paragraph, "Office Number", replacements.get("office_number", ""))
-                if "Floor Number" in paragraph.text:
-                    make_text_bold(paragraph, "Floor Number", replacements.get("floor_number", "").upper())
-                if "designated Office" in paragraph.text:
-                    make_text_bold(paragraph, "designated Office", replacements.get("designated Office", ""))
-
-        # Function to make specific text bold
+        # make text bold and underline the start date and end date
         def make_text_bold(paragraph, text_to_bold, replacement_value):
             """
             Make specific text bold while replacing it with a value if provided.
@@ -609,6 +595,14 @@ def generate_lease():
                     if i < len(parts) - 1:
                         bold_run = paragraph.add_run(replacement_value if replacement_value else text_to_bold)
                         bold_run.bold = True
+
+        def underline_text(paragraph, text_to_underline):
+            """
+            Underline specific text in a paragraph.
+            """
+            for run in paragraph.runs:
+                if text_to_underline in run.text:
+                    run.underline = WD_UNDERLINE.SINGLE
 
         # logging of keys that have not been replaced
         def log_unmatched_keys(replacements, document):
@@ -649,13 +643,7 @@ def generate_lease():
         replace_text_with_formatting(document, replacements)
         
         # Underline specific dates
-        underline_dates(document, replacements)
-        
-        # Apply additional formatting
-        apply_formatting_general(document)
-        
-        # Apply additional formatting
-        apply_formatting_specific(document, replacements)
+        apply_formatting(document,formatting_rules, replacements)
 
         # Log any unreplaced keys - Add this line right before saving the document
         log_unmatched_keys(replacements, document)
