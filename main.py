@@ -436,7 +436,7 @@ def generate_lease():
         "Physical Location": data.get("physical_location", ""),
         "Office Number": data.get("office_number", ""),
         "Floor Number": data.get("floor_number", "").upper(),
-        "Date of Lease Entry": format_lease_date(data.get("date_of_lease_entry", "")),
+        "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
         "New or Renew": data.get("new_or_renew", ""),
@@ -488,7 +488,33 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
+
+            def handle_underlined_text(paragraph, text_to_underline, replacement_value):
+                if text_to_underline not in paragraph.text:
+                    return False
+                    
+                original_text = paragraph.text
+                paragraph.clear()
+                parts = original_text.split(text_to_underline)
+                
+                for i, part in enumerate(parts):
+                    if part:
+                        run = paragraph.add_run(part)
+                    if i < len(parts) - 1:
+                        run = paragraph.add_run(str(replacement_value))
+                        run.underline = WD_UNDERLINE.SINGLE
+                return True
+
             def replace_in_paragraph(paragraph, is_table=False):
+                # Handle both date words together
+                date_words = ["Start_Date_in_words", "End_Date_in_words"]
+                for date_word in date_words:
+                    if date_word in paragraph.text:
+                        success = handle_underlined_text(paragraph, date_word, replacements[date_word])
+                        if success:
+                            return
+                
+                # Continue with other replacements if no date words found
                 if "Tenant Name" in paragraph.text:
                     # Store original text
                     original_text = paragraph.text
@@ -517,23 +543,20 @@ def generate_lease():
                     # Handle other replacements without formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
-                            # Handle terms that need underlining
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                original_text = paragraph.text
-                                paragraph.clear()
-                                parts = original_text.split(key)
-                                
-                                for i, part in enumerate(parts):
-                                    if i > 0:
-                                        # Add the replacement with underlining
-                                        run = paragraph.add_run(str(value))
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if ("Year of Term" in key or 
+                                key == "One (1) Month being the remainder of the term" or
+                                key == "Start_Date_in_words" or 
+                                key == "End_Date_in_words"):
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, str(value))
                                         run.font.underline = WD_UNDERLINE.SINGLE
-                                    if part:
-                                        # Add the regular text
-                                        run = paragraph.add_run(part)
-                                return
                             else:
-                                paragraph.text = paragraph.text.replace(key, str(value))
+                                paragraph.text = paragraph.text.replace(key, value)
 
             # Process document sections
             for paragraph in document.paragraphs:
@@ -553,63 +576,6 @@ def generate_lease():
 
 
         replace_text_with_formatting(document, replacements)
-
-        
-        # underlining of dates
-        def underline_dates(document, replacements):
-            """
-            Underline specific placeholders in the document.
-            """
-            for paragraph in document.paragraphs:
-                for key in ["Start_Date_in_words", "End_Date_in_words"]:
-                    if key in paragraph.text:
-                        parts = paragraph.text.split(key)
-                        paragraph.clear()
-                        for i, part in enumerate(parts):
-                            if i > 0:
-                                run = paragraph.add_run(replacements[key])
-                                run.underline = WD_UNDERLINE.SINGLE
-                            if part:
-                                paragraph.add_run(part)
-
-        # formatting changes
-        def apply_formatting_general(document):
-            """
-            Apply formatting for general text such as "LETTING OF OFFICE" and "designated parking spaces".
-            """
-            for paragraph in document.paragraphs:
-                if "LETTING OF OFFICE" in paragraph.text:
-                    make_text_bold(paragraph, "LETTING OF OFFICE", "LETTING OF OFFICE")
-                if "designated parking spaces" in paragraph.text:
-                    make_text_bold(paragraph, "designated parking spaces", "designated parking spaces")
-
-        # formatting changes number 2
-        def apply_formatting_specific(document, replacements):
-            """
-            Apply formatting for specific placeholders such as "Office Number," "Floor Number," and "designated Office."
-            """
-            for paragraph in document.paragraphs:
-                if "Office Number" in paragraph.text:
-                    make_text_bold(paragraph, "Office Number", replacements.get("office_number", ""))
-                if "Floor Number" in paragraph.text:
-                    make_text_bold(paragraph, "Floor Number", replacements.get("floor_number", "").upper())
-                if "designated Office" in paragraph.text:
-                    make_text_bold(paragraph, "designated Office", "designated Office")
-
-        # Function to make specific text bold
-        def make_text_bold(paragraph, text_to_bold, replacement_value):
-            """
-            Make specific text bold while replacing it with a value if provided.
-            """
-            if text_to_bold in paragraph.text:
-                parts = paragraph.text.split(text_to_bold)
-                paragraph.clear()
-                for i, part in enumerate(parts):
-                    if part:
-                        paragraph.add_run(part).bold = False
-                    if i < len(parts) - 1:
-                        bold_run = paragraph.add_run(replacement_value if replacement_value else text_to_bold)
-                        bold_run.bold = True
 
         # logging of keys that have not been replaced
         def log_unmatched_keys(replacements, document):
@@ -648,15 +614,6 @@ def generate_lease():
 
         # Call the function to replace placeholders in the document
         replace_text_with_formatting(document, replacements)
-        
-        # Underline specific dates
-        underline_dates(document, replacements)
-        
-        # Apply additional formatting
-        apply_formatting_general(document)
-        
-        # Apply additional formatting
-        apply_formatting_specific(document, replacements)
 
         # Log any unreplaced keys - Add this line right before saving the document
         log_unmatched_keys(replacements, document)
@@ -703,21 +660,6 @@ def calculate_dates():
     except Exception as e:
         logger.error(f"Date calculation error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
-def format_lease_date(date_str):
-    """Convert date from dd/mm/yyyy to format like '16th January 2025'"""
-    try:
-        if '/' in date_str:
-            date_obj = datetime.strptime(date_str, '%d/%m/%Y')
-        else:
-            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        
-        day = date_obj.day
-        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10 if day % 100 not in [11, 12, 13] else 0, 'th')
-        return f"{day}{suffix} {date_obj.strftime('%B %Y')}"
-    except ValueError as e:
-        logger.error(f"Date formatting error: {str(e)}")
-        return date_str
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
