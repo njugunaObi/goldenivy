@@ -471,7 +471,7 @@ def generate_lease():
         "5th Year of Term": "5th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
         "Start_Date_in_words": date_to_words(data.get("start_date")),
-        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
+        "Finished_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
         
     }
 
@@ -488,83 +488,88 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-
-            def handle_underlined_text(paragraph, text_to_underline, replacement_value):
-                if text_to_underline not in paragraph.text:
-                    return False
-                    
+            def handle_date_words(paragraph):
                 original_text = paragraph.text
-                original_runs = paragraph.runs[:]  # Preserve existing runs
+                date_words = ["Start_Date_in_words", "Finished_Date_in_words"]
+                
+                # Store original text and clear paragraph
                 paragraph.clear()
                 
-                # Process text with careful splitting
-                parts = original_text.split(text_to_underline)
-                for i, part in enumerate(parts):
-                    # Add regular text
-                    if part:
-                        run = paragraph.add_run(part)
-                        
-                    # Add underlined replacement
-                    if i < len(parts) - 1:
-                        run = paragraph.add_run(str(replacement_value))
+                # Track positions of both date words
+                text_parts = []
+                current_text = original_text
+                
+                # Split text into parts for both date words
+                for date_word in date_words:
+                    if date_word in current_text and date_word in replacements:
+                        parts = current_text.split(date_word)
+                        for i, part in enumerate(parts):
+                            text_parts.append(part)
+                            if i < len(parts) - 1:
+                                text_parts.append((date_word, replacements[date_word]))
+                        current_text = "".join(parts)
+                
+                # Rebuild paragraph with formatting
+                for part in text_parts:
+                    if isinstance(part, tuple):
+                        date_word, value = part
+                        run = paragraph.add_run(str(value))
                         run.underline = WD_UNDERLINE.SINGLE
-                        
-                return True
+                    else:
+                        if part:
+                            run = paragraph.add_run(part)
+                
+                return len(text_parts) > 1
 
             def replace_in_paragraph(paragraph, is_table=False):
-                # Handle each date word separately without returning early
-                text_modified = False
+                # Handle date words first
+                if any(word in paragraph.text for word in ["Start_Date_in_words", "Finished_Date_in_words"]):
+                    if handle_date_words(paragraph):
+                        return
                 
-                for date_word in ["Start_Date_in_words", "End_Date_in_words"]:
-                    if date_word in paragraph.text and date_word in replacements:
-                        success = handle_underlined_text(paragraph, date_word, replacements[date_word])
-                        if success:
-                            text_modified = True
-                
-                # Only continue with other replacements if dates weren't processed
-                if not text_modified:
-                    if "Tenant Name" in paragraph.text:
-                        # Store original text
-                        original_text = paragraph.text
+                # Continue with other replacements
+                if "Tenant Name" in paragraph.text:
+                    # Store original text
+                    original_text = paragraph.text
 
-                        # Replace Tenant Name while preserving other text
-                        new_text = original_text.replace(
-                            "Tenant Name", str(replacements["Tenant Name"]))
+                    # Replace Tenant Name while preserving other text
+                    new_text = original_text.replace(
+                        "Tenant Name", str(replacements["Tenant Name"]))
 
-                        # Clear paragraph
-                        paragraph.clear()
+                    # Clear paragraph
+                    paragraph.clear()
 
-                        # Split text into parts
-                        parts = new_text.split(str(replacements["Tenant Name"]))
+                    # Split text into parts
+                    parts = new_text.split(str(replacements["Tenant Name"]))
 
-                        # Rebuild paragraph with correct formatting
-                        for i, part in enumerate(parts):
-                            if i > 0:  # Add tenant name before remaining parts
-                                run = paragraph.add_run(
-                                    str(replacements["Tenant Name"]))
-                                run.bold = True
-                                run.font.size = Pt(12 if is_table else 14)
-                            if part:  # Add non-tenant name part
-                                run = paragraph.add_run(part)
-                                run.bold = False
-                    else:
-                        # Handle other replacements without formatting
-                        for key, value in replacements.items():
-                            if key in paragraph.text:
-                                paragraph.text = paragraph.text.replace(
-                                    key, str(value))
-                            # Handle terms that need underlining
-                            if key in paragraph.text and key != "Tenant Name":
-                                if ("Year of Term" in key or 
-                                    key == "One (1) Month being the remainder of the term" or
-                                    key == "Start_Date_in_words" or 
-                                    key == "End_Date_in_words"):
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, str(value))
-                                            run.font.underline = WD_UNDERLINE.SINGLE
-                                else:
-                                    paragraph.text = paragraph.text.replace(key, value)
+                    # Rebuild paragraph with correct formatting
+                    for i, part in enumerate(parts):
+                        if i > 0:  # Add tenant name before remaining parts
+                            run = paragraph.add_run(
+                                str(replacements["Tenant Name"]))
+                            run.bold = True
+                            run.font.size = Pt(12 if is_table else 14)
+                        if part:  # Add non-tenant name part
+                            run = paragraph.add_run(part)
+                            run.bold = False
+                else:
+                    # Handle other replacements without formatting
+                    for key, value in replacements.items():
+                        if key in paragraph.text:
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if ("Year of Term" in key or 
+                                key == "One (1) Month being the remainder of the term" or
+                                key == "Start_Date_in_words" or 
+                                key == "Finished_Date_in_words"):
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, str(value))
+                                        run.font.underline = WD_UNDERLINE.SINGLE
+                            else:
+                                paragraph.text = paragraph.text.replace(key, value)
 
             # Process document sections
             for paragraph in document.paragraphs:
