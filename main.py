@@ -471,7 +471,7 @@ def generate_lease():
         "5th Year of Term": "5th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
         "Start_Date_in_words": date_to_words(data.get("start_date")),
-        "Finished_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
+        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
         
     }
 
@@ -490,7 +490,7 @@ def generate_lease():
         def replace_text_with_formatting(document, replacements):
             def handle_date_words(paragraph):
                 original_text = paragraph.text
-                date_words = ["Start_Date_in_words", "Finished_Date_in_words"]
+                date_words = ["Start_Date_in_words", "End_Date_in_words"]
                 
                 # Store original text and clear paragraph
                 paragraph.clear()
@@ -523,7 +523,7 @@ def generate_lease():
 
             def replace_in_paragraph(paragraph, is_table=False):
                 # Handle date words first
-                if any(word in paragraph.text for word in ["Start_Date_in_words", "Finished_Date_in_words"]):
+                if any(word in paragraph.text for word in ["Start_Date_in_words", "End_Date_in_words"]):
                     if handle_date_words(paragraph):
                         return
                 
@@ -563,7 +563,7 @@ def generate_lease():
                             if ("Year of Term" in key or 
                                 key == "One (1) Month being the remainder of the term" or
                                 key == "Start_Date_in_words" or 
-                                key == "Finished_Date_in_words"):
+                                key == "End_Date_in_words"):
                                 for run in paragraph.runs:
                                     if key in run.text:
                                         run.text = run.text.replace(key, str(value))
