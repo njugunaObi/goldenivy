@@ -54,7 +54,7 @@ def calculate_years_of_term(start_date):
     dates = []
 
     current_date = start_obj
-    for year in range(5):
+    for year in range(7):
         # Start date for the current year
         year_start = current_date
 
@@ -77,7 +77,7 @@ def calculate_years_of_term(start_date):
 
 # Helper function: Calculate remainder dates
 def calculate_remainder(years_of_term):
-    if len(years_of_term) < 5:
+    if len(years_of_term) < 7:
         raise ValueError(
             "Not enough terms to calculate the fifth subsequent ending date.")
 
@@ -131,7 +131,7 @@ def generate_lease():
 
         # Calculate years of term
         years_of_term = calculate_years_of_term(start_date)
-        if len(years_of_term) < 5:
+        if len(years_of_term) < 7:
             return jsonify({
                 "error":
                 "Insufficient terms to calculate the fifth subsequent ending date."
@@ -171,7 +171,7 @@ def generate_lease():
         def calculate_escalation(base_rent,
                                  rate_str,
                                  escalation_type,
-                                 terms=5):
+                                 terms=7):
             try:
                 # Parse escalation rate
                 rate = parse_escalation_rate(rate_str)
@@ -463,6 +463,8 @@ def generate_lease():
         "Fourth Subsequent Ending Date": formatted_years[3][1],
         "Fifth Subsequent Starting Date": formatted_years[4][0],
         "Fifth Subsequent Ending Date": formatted_years[4][1],
+        "Sixth Subsequent Starting Date": formatted_years[5][0],
+        "Sixth Subsequent Ending Date": formatted_years[5][1],
         "Remainder Beginning Date": remainder_dates[0],
         "Remainder Ending Date": remainder_dates[1],
         # Terms to be underlined
@@ -471,6 +473,8 @@ def generate_lease():
         "3rd Year of Term": "3rd Year of Term",
         "4th Year of Term": "4th Year of Term",
         "5th Year of Term": "5th Year of Term",
+        "6th Year of Term": "6th Year of Term",
+        "7th Year of Term": "7th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
         
         
