@@ -439,6 +439,8 @@ def generate_lease():
         "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
+        "Start_Date_in_words": date_to_words(data.get("start_date")),
+        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else "",
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -470,8 +472,7 @@ def generate_lease():
         "4th Year of Term": "4th Year of Term",
         "5th Year of Term": "5th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
-        "Start_Date_in_words": date_to_words(data.get("start_date")),
-        "End_Date_in_words": date_to_words(fifth_end_date) if fifth_end_date else ""
+        
         
     }
 
@@ -488,46 +489,8 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-            def handle_date_words(paragraph):
-                original_text = paragraph.text
-                date_words = ["Start_Date_in_words", "End_Date_in_words"]
-                
-                # Store original text and clear paragraph
-                paragraph.clear()
-                
-                # Track positions of both date words
-                text_parts = []
-                current_text = original_text
-                
-                # Split text into parts for both date words
-                for date_word in date_words:
-                    if date_word in current_text and date_word in replacements:
-                        parts = current_text.split(date_word)
-                        for i, part in enumerate(parts):
-                            text_parts.append(part)
-                            if i < len(parts) - 1:
-                                text_parts.append((date_word, replacements[date_word]))
-                        current_text = "".join(parts)
-                
-                # Rebuild paragraph with formatting
-                for part in text_parts:
-                    if isinstance(part, tuple):
-                        date_word, value = part
-                        run = paragraph.add_run(str(value))
-                        run.underline = WD_UNDERLINE.SINGLE
-                    else:
-                        if part:
-                            run = paragraph.add_run(part)
-                
-                return len(text_parts) > 1
 
             def replace_in_paragraph(paragraph, is_table=False):
-                # Handle date words first
-                if any(word in paragraph.text for word in ["Start_Date_in_words", "End_Date_in_words"]):
-                    if handle_date_words(paragraph):
-                        return
-                
-                # Continue with other replacements
                 if "Tenant Name" in paragraph.text:
                     # Store original text
                     original_text = paragraph.text
@@ -560,13 +523,10 @@ def generate_lease():
                                 key, str(value))
                         # Handle terms that need underlining
                         if key in paragraph.text and key != "Tenant Name":
-                            if ("Year of Term" in key or 
-                                key == "One (1) Month being the remainder of the term" or
-                                key == "Start_Date_in_words" or 
-                                key == "End_Date_in_words"):
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
                                 for run in paragraph.runs:
                                     if key in run.text:
-                                        run.text = run.text.replace(key, str(value))
+                                        run.text = run.text.replace(key, value)
                                         run.font.underline = WD_UNDERLINE.SINGLE
                             else:
                                 paragraph.text = paragraph.text.replace(key, value)
@@ -676,3 +636,7 @@ def calculate_dates():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+
+
+
+
