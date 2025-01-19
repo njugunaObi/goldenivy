@@ -193,12 +193,12 @@ def generate_lease():
                 escalations = [base_rent]
                 for year in range(1, terms):
                     if normalized_type == "yearly":
-                        base_rent *= (1 + rate)
+                        based_rent = base_rent * rate 
                     elif normalized_type == "afterfirsttwoyears" and year >= 2:
-                        base_rent *= (1 + rate)
+                        based_rent = base_rent * rate
                     elif normalized_type == "everytwoyears" and year % 2 == 0:
-                        base_rent *= (1 + rate)
-                    escalations.append(int(base_rent))
+                        based_rent = base_rent * rate
+                    escalations.append(int(base_rent + based_rent))
 
                 logger.info(
                     f"Calculated Escalations for {escalation_type}: {escalations}"
@@ -436,7 +436,7 @@ def generate_lease():
         "Physical Location": data.get("physical_location", ""),
         "Office Number": data.get("office_number", ""),
         "Floor Number": data.get("floor_number", "").upper(),
-        "Date of Lease Entry": format_date(data.get("date_of_lease_entry")),
+        "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
         "Start_Date_in_words": date_to_words(data.get("start_date")),
@@ -493,58 +493,82 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
+            def apply_special_formatting(paragraph, target_text, replacement_text, is_bold=False, is_caps=False):
+                if target_text not in paragraph.text:
+                    return
+                    
+                original_text = paragraph.text
+                parts = original_text.split(target_text)
+                
+                paragraph.clear()
+                
+                for i, part in enumerate(parts):
+                    if part:
+                        paragraph.add_run(part)
+                    if i < len(parts) - 1:
+                        run = paragraph.add_run(replacement_text if replacement_text else target_text)
+                        if is_bold:
+                            run.bold = True
+                        if is_caps:
+                            run.text = run.text.upper()
 
             def replace_in_paragraph(paragraph, is_table=False):
+                original_text = paragraph.text
+                
+                # Handle special formatting cases first
+                special_cases = [
+                    ("LETTING OF OFFICE", "LETTING OF OFFICE", True, False),
+                    ("OFFISI NAMBARI", str(replacements.get("Office Number", "")), True, True),
+                    ("CHINI NAMBARI", str(replacements.get("Floor Number", "")), True, True),
+                    ("designati", "designated", True, False),
+                    ("Park Row", str(replacements.get("Parking Capacity", "")), True, False),
+                    ("Point pleasant", "parking spaces", True, False)
+                ]
+                
+                # Check and apply special cases
+                for target, replacement, is_bold, is_caps in special_cases:
+                    if target in original_text:
+                        apply_special_formatting(paragraph, target, replacement, is_bold, is_caps)
+                        return  # Return after handling special case
+                
+                # Handle Tenant Name formatting
                 if "Tenant Name" in paragraph.text:
-                    # Store original text
-                    original_text = paragraph.text
-
-                    # Replace Tenant Name while preserving other text
-                    new_text = original_text.replace(
-                        "Tenant Name", str(replacements["Tenant Name"]))
-
-                    # Clear paragraph
+                    new_text = original_text.replace("Tenant Name", str(replacements["Tenant Name"]))
                     paragraph.clear()
-
-                    # Split text into parts
                     parts = new_text.split(str(replacements["Tenant Name"]))
-
-                    # Rebuild paragraph with correct formatting
+                    
                     for i, part in enumerate(parts):
-                        if i > 0:  # Add tenant name before remaining parts
-                            run = paragraph.add_run(
-                                str(replacements["Tenant Name"]))
+                        if i > 0:
+                            run = paragraph.add_run(str(replacements["Tenant Name"]))
                             run.bold = True
                             run.font.size = Pt(12 if is_table else 14)
-                        if part:  # Add non-tenant name part
+                        if part:
                             run = paragraph.add_run(part)
                             run.bold = False
                 else:
                     # Handle other replacements without formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
-                            paragraph.text = paragraph.text.replace(
-                                key, str(value))
-                        # Handle terms that need underlining
-                        if key in paragraph.text and key != "Tenant Name":
                             if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
                                 for run in paragraph.runs:
                                     if key in run.text:
-                                        run.text = run.text.replace(key, value)
+                                        run.text = run.text.replace(key, str(value))
                                         run.font.underline = WD_UNDERLINE.SINGLE
                             else:
-                                paragraph.text = paragraph.text.replace(key, value)
+                                paragraph.text = paragraph.text.replace(key, str(value))
 
-            # Process document sections
+            # Process main document
             for paragraph in document.paragraphs:
                 replace_in_paragraph(paragraph)
 
+            # Process tables
             for table in document.tables:
                 for row in table.rows:
                     for cell in row.cells:
                         for paragraph in cell.paragraphs:
                             replace_in_paragraph(paragraph, is_table=True)
 
+            # Process headers and footers
             for section in document.sections:
                 for header_footer in [section.header, section.footer]:
                     if header_footer:
