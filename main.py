@@ -521,6 +521,7 @@ def generate_lease():
                     ("OFFISI NAMBARI", str(replacements.get("Office Number", "")), True, True),
                     ("CHINI NAMBARI", str(replacements.get("Floor Number", "")), True, True),
                     ("designati", "designated", True, False),
+                    ("KriKri", "Office", True, False),
                     ("Park Row", str(replacements.get("Parking Capacity", "")), True, False),
                     ("Point pleasant", "parking spaces", True, False)
                 ]
