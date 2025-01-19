@@ -193,12 +193,15 @@ def generate_lease():
                 escalations = [base_rent]
                 for year in range(1, terms):
                     if normalized_type == "yearly":
-                        base_rent *= (1 + rate) 
+                        current_rent = base_rent * (1 + (rate * year)) 
                     elif normalized_type == "afterfirsttwoyears" and year >= 2:
-                        base_rent *= (1 + rate)
+                        current_rent = base_rent * (1 + (rate * year ))
                     elif normalized_type == "everytwoyears" and year % 2 == 0:
-                        base_rent *= (1 + rate)
+                        current_rent = base_rent * (1 + (rate * year ))
+                    else:
+                        current_rent = base_rent    
                     escalations.append(int(base_rent))
+                    
 
                 logger.info(
                     f"Calculated Escalations for {escalation_type}: {escalations}"
@@ -518,8 +521,8 @@ def generate_lease():
                 # Handle special formatting cases first
                 special_cases = [
                     ("LETTING OF OFFICE", "LETTING OF OFFICE", True, False),
-                    ("OFFISI NAMBARI", str(replacements.get("Office Number", "")), True, True),
-                    ("CHINI NAMBARI", str(replacements.get("Floor Number", "")), True, True),
+                    ("Office Number", str(replacements.get("Office Number", "")), True, True),
+                    ("Floor Number", str(replacements.get("Floor Number", "")), True, True),
                     ("designated Office", "designated Office", True, False),
                     ("Parking Capacity", str(replacements.get("Parking Capacity", "")), True, False),
                     ("parking spaces", "parking spaces", True, False)
