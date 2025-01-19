@@ -190,17 +190,18 @@ def generate_lease():
                         f"Invalid escalation type: {escalation_type}")
 
                 # Initialize escalation logic
-                escalations = [base_rent]
+                initial_rent = base_rent
+                escalations = [initial_rent]
                 for year in range(1, terms):
                     if normalized_type == "yearly":
-                        current_rent = base_rent * (1 + (rate * year)) 
+                        current_rent = initial_rent + (initial_rent * rate * year) 
                     elif normalized_type == "afterfirsttwoyears" and year >= 2:
-                        current_rent = base_rent * (1 + (rate * year ))
+                        current_rent = initial_rent + (initial_rent * rate * (year - 1))
                     elif normalized_type == "everytwoyears" and year % 2 == 0:
-                        current_rent = base_rent * (1 + (rate * year ))
+                        current_rent = initial_rent + (initial_rent * rate * (year // 2))
                     else:
-                        current_rent = base_rent    
-                    escalations.append(int(base_rent))
+                        current_rent = initial_rent         
+                    escalations.append(int(current_rent))
                     
 
                 logger.info(
@@ -213,8 +214,7 @@ def generate_lease():
                              exc_info=True)
                 return [base_rent] * terms
 
-        escalated_rents = calculate_escalation(yearly_rent, escalation_rate,
-                                               escalation_type)
+        escalated_rents = calculate_escalation(yearly_rent, escalation_rate, escalation_type)
 
         # Convert dates to words
         def date_to_words(date_str):
@@ -496,6 +496,9 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
+            logger.info("Attempting replacements:")
+            for key, value in replacements.items():
+                logger.info(f"Looking for: '{key}' to replace with: '{value}'")
             def apply_special_formatting(paragraph, target_text, replacement_text, is_bold=False, is_caps=False):
                 if target_text not in paragraph.text:
                     return
@@ -521,11 +524,8 @@ def generate_lease():
                 # Handle special formatting cases first
                 special_cases = [
                     ("LETTING OF OFFICE", "LETTING OF OFFICE", True, False),
-                    ("Office Number", str(replacements.get("Office Number", "")), True, True),
-                    ("Floor Number", str(replacements.get("Floor Number", "")), True, True),
                     ("designated Office", "designated Office", True, False),
-                    ("Parking Capacity", str(replacements.get("Parking Capacity", "")), True, False),
-                    ("parking spaces", "parking spaces", True, False)
+                    ("designated parking spaces", "designated parking spaces", True, False)
                 ]
                 
                 # Check and apply special cases
@@ -551,14 +551,10 @@ def generate_lease():
                 else:
                     # Handle other replacements without formatting
                     for key, value in replacements.items():
-                        if key in paragraph.text:
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                for run in paragraph.runs:
-                                    if key in run.text:
-                                        run.text = run.text.replace(key, str(value))
-                                        run.font.underline = WD_UNDERLINE.SINGLE
-                            else:
-                                paragraph.text = paragraph.text.replace(key, str(value))
+                        if key.lower() in paragraph.text.lower():
+                            # Use regex to preserve original case
+                            pattern = re.compile(re.escape(key), re.IGNORECASE)
+                            paragraph.text = pattern.sub(str(value), paragraph.text)
 
             # Process main document
             for paragraph in document.paragraphs:
@@ -667,7 +663,3 @@ def calculate_dates():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
-
-
-
-
