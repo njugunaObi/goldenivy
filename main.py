@@ -145,7 +145,6 @@ def generate_lease():
         remaining_days = total_days % 30
         lease_duration = f"{months} months {remaining_days} days"
         remainder_dates = calculate_remainder(years_of_term)
-        
 
         # Standardize date formats in years_of_term
         formatted_years = []
@@ -194,15 +193,14 @@ def generate_lease():
                 escalations = [initial_rent]
                 for year in range(1, terms):
                     if normalized_type == "yearly":
-                        current_rent = initial_rent + (initial_rent * rate * year) 
+                        current_rent = initial_rent + (initial_rent * rate * year)
                     elif normalized_type == "afterfirsttwoyears" and year >= 2:
                         current_rent = initial_rent + (initial_rent * rate * (year - 1))
                     elif normalized_type == "everytwoyears" and year % 2 == 0:
                         current_rent = initial_rent + (initial_rent * rate * (year // 2))
                     else:
-                        current_rent = initial_rent         
+                        current_rent = initial_rent
                     escalations.append(int(current_rent))
-                    
 
                 logger.info(
                     f"Calculated Escalations for {escalation_type}: {escalations}"
@@ -214,7 +212,8 @@ def generate_lease():
                              exc_info=True)
                 return [base_rent] * terms
 
-        escalated_rents = calculate_escalation(yearly_rent, escalation_rate, escalation_type)
+        escalated_rents = calculate_escalation(yearly_rent, escalation_rate,
+                                               escalation_type)
 
         # Convert dates to words
         def date_to_words(date_str):
@@ -431,7 +430,7 @@ def generate_lease():
             """
             # Basic replacements from input data
             replacements = {
-        
+
         # Rest of your existing replacements
         "Tenant Name": data.get("tenant_name", "").upper(),
         "Phone Number": data.get("phone_number", ""),
@@ -479,8 +478,7 @@ def generate_lease():
         "6th Year of Term": "6th Year of Term",
         "7th Year of Term": "7th Year of Term",
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
-        
-        
+
     }
 
             # Add escalation-related replacements
@@ -496,84 +494,106 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-            logger.info("Attempting replacements:")
-            for key, value in replacements.items():
-                logger.info(f"Looking for: '{key}' to replace with: '{value}'")
-            def apply_special_formatting(paragraph, target_text, replacement_text, is_bold=False, is_caps=False):
-                if target_text not in paragraph.text:
-                    return
-                    
-                original_text = paragraph.text
-                parts = original_text.split(target_text)
-                
-                paragraph.clear()
-                
-                for i, part in enumerate(parts):
-                    if part:
-                        paragraph.add_run(part)
-                    if i < len(parts) - 1:
-                        run = paragraph.add_run(replacement_text if replacement_text else target_text)
-                        if is_bold:
-                            run.bold = True
-                        if is_caps:
-                            run.text = run.text.upper()
 
             def replace_in_paragraph(paragraph, is_table=False):
-                original_text = paragraph.text
-                
-                # Handle special formatting cases first
-                special_cases = [
-                    ("LETTING OF OFFICE", "LETTING OF OFFICE", True, False),
-                    ("designated Office", "designated Office", True, False),
-                    ("designated parking spaces", "designated parking spaces", True, False)
-                ]
-                
-                # Check and apply special cases
-                for target, replacement, is_bold, is_caps in special_cases:
-                    if target in original_text:
-                        apply_special_formatting(paragraph, target, replacement, is_bold, is_caps)
-                        return  # Return after handling special case
-                
-                # Handle Tenant Name formatting
                 if "Tenant Name" in paragraph.text:
-                    new_text = original_text.replace("Tenant Name", str(replacements["Tenant Name"]))
+                    # Store original text
+                    original_text = paragraph.text
+
+                    # Replace Tenant Name while preserving other text
+                    new_text = original_text.replace(
+                        "Tenant Name", str(replacements["Tenant Name"]))
+
+                    # Clear paragraph
                     paragraph.clear()
+
+                    # Split text into parts
                     parts = new_text.split(str(replacements["Tenant Name"]))
-                    
+
+                    # Rebuild paragraph with correct formatting
                     for i, part in enumerate(parts):
-                        if i > 0:
-                            run = paragraph.add_run(str(replacements["Tenant Name"]))
+                        if i > 0:  # Add tenant name before remaining parts
+                            run = paragraph.add_run(
+                                str(replacements["Tenant Name"]))
                             run.bold = True
                             run.font.size = Pt(12 if is_table else 14)
-                        if part:
+                        if part:  # Add non-tenant name part
                             run = paragraph.add_run(part)
                             run.bold = False
                 else:
-                    # Handle other replacements without formatting
+                    # Handle other replacements with formatting
                     for key, value in replacements.items():
-                        if key.lower() in paragraph.text.lower():
-                            # Use regex to preserve original case
-                            pattern = re.compile(re.escape(key), re.IGNORECASE)
-                            paragraph.text = pattern.sub(str(value), paragraph.text)
+                        if key in paragraph.text:
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
+                            # Handle terms that need underlining
+                            if key in paragraph.text and key != "Tenant Name":
+                                if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.font.underline = WD_UNDERLINE.SINGLE
+                                elif key == "Start_Date_in_words" or key == "End_Date_in_words":
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.font.underline = WD_UNDERLINE.SINGLE
+                                elif key == "Office Number" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                            run.font.size = Pt(12)
+                                elif key == "Floor Number" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                            run.font.size = Pt(14)
+                                elif key == "Floor of office" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                            run.font.size = Pt(12)
+                                elif key == "Floor plan in Sq foot" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                elif key == "Parking Capacity" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                elif key == "designated parking spaces" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True
+                                elif key == "LETTING OF OFFICE" and not is_table:
+                                    for run in paragraph.runs:
+                                        if key in run.text:
+                                            run.text = run.text.replace(key, value)
+                                            run.bold = True            
+                                else:
+                                    paragraph.text = paragraph.text.replace(key, value)
 
-            # Process main document
+            # Process document sections
             for paragraph in document.paragraphs:
                 replace_in_paragraph(paragraph)
 
-            # Process tables
             for table in document.tables:
                 for row in table.rows:
                     for cell in row.cells:
                         for paragraph in cell.paragraphs:
                             replace_in_paragraph(paragraph, is_table=True)
 
-            # Process headers and footers
             for section in document.sections:
                 for header_footer in [section.header, section.footer]:
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
                             replace_in_paragraph(paragraph)
-
 
         replace_text_with_formatting(document, replacements)
 
@@ -643,7 +663,7 @@ def calculate_dates():
         years_of_term = calculate_years_of_term(start_date)
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
         fifth_end_date = datetime.strptime(years_of_term[4][1], "%d/%m/%Y")
-        
+
         # Calculate exact duration
         duration = fifth_end_date - start_date_obj
         total_days = duration.days
