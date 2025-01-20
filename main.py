@@ -494,7 +494,6 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-
             def replace_in_paragraph(paragraph, is_table=False):
                 if "Tenant Name" in paragraph.text:
                     # Store original text
@@ -521,63 +520,20 @@ def generate_lease():
                             run = paragraph.add_run(part)
                             run.bold = False
                 else:
-                    # Handle other replacements with formatting
+                    # Handle other replacements without formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
                             paragraph.text = paragraph.text.replace(
                                 key, str(value))
-                            # Handle terms that need underlining
-                            if key in paragraph.text and key != "Tenant Name":
-                                if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.font.underline = WD_UNDERLINE.SINGLE
-                                elif key == "Start_Date_in_words" or key == "End_Date_in_words":
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.font.underline = WD_UNDERLINE.SINGLE
-                                elif key == "Office Number" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                            run.font.size = Pt(12)
-                                elif key == "Floor Number" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                            run.font.size = Pt(14)
-                                elif key == "Floor of office" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                            run.font.size = Pt(12)
-                                elif key == "Floor plan in Sq foot" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                elif key == "Parking Capacity" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                elif key == "designated parking spaces" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True
-                                elif key == "LETTING OF OFFICE" and not is_table:
-                                    for run in paragraph.runs:
-                                        if key in run.text:
-                                            run.text = run.text.replace(key, value)
-                                            run.bold = True            
-                                else:
-                                    paragraph.text = paragraph.text.replace(key, value)
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, value)
+                                        run.font.underline = WD_UNDERLINE.SINGLE
+                            else:
+                                paragraph.text = paragraph.text.replace(key, value)
 
             # Process document sections
             for paragraph in document.paragraphs:
