@@ -9,6 +9,8 @@ import calendar
 import logging
 import re
 import inflect
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 from docx.enum.text import WD_UNDERLINE
 
 # call inflect
@@ -492,48 +494,39 @@ def generate_lease():
         # In the generate_lease function, replace the existing replacements creation with:
         replacements = generate_replacements(data, escalated_rents)
 
+
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
+            def apply_replacement(paragraph, key, value, bold=False, underline=False, is_table=False):
+                original_text = paragraph.text
+                new_text = original_text.replace(key, value)
+                paragraph.clear()
+                parts = new_text.split(value)
+                for i, part in enumerate(parts):
+                    if i > 0:
+                        run = paragraph.add_run(value)
+                        run.bold = bold
+                        run.font.size = Pt(12 if is_table else 14)
+                        if underline:
+                            run.font.underline = WD_UNDERLINE.SINGLE
+                    if part:
+                        run = paragraph.add_run(part)
+                        run.bold = False
+
             def replace_in_paragraph(paragraph, is_table=False):
                 if "Tenant Name" in paragraph.text:
-                    # Store original text
-                    original_text = paragraph.text
-
-                    # Replace Tenant Name while preserving other text
-                    new_text = original_text.replace(
-                        "Tenant Name", str(replacements["Tenant Name"]))
-
-                    # Clear paragraph
-                    paragraph.clear()
-
-                    # Split text into parts
-                    parts = new_text.split(str(replacements["Tenant Name"]))
-
-                    # Rebuild paragraph with correct formatting
-                    for i, part in enumerate(parts):
-                        if i > 0:  # Add tenant name before remaining parts
-                            run = paragraph.add_run(
-                                str(replacements["Tenant Name"]))
-                            run.bold = True
-                            run.font.size = Pt(12 if is_table else 14)
-                        if part:  # Add non-tenant name part
-                            run = paragraph.add_run(part)
-                            run.bold = False
+                    apply_replacement(paragraph, "Tenant Name", str(replacements["Tenant Name"]), bold=True)
                 else:
-                    # Handle other replacements without formatting
+                    # Handle other replacements with formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
-                            paragraph.text = paragraph.text.replace(
-                                key, str(value))
-                        # Handle terms that need underlining
-                        if key in paragraph.text and key != "Tenant Name":
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                for run in paragraph.runs:
-                                    if key in run.text:
-                                        run.text = run.text.replace(key, value)
-                                        run.font.underline = WD_UNDERLINE.SINGLE
-                            else:
-                                paragraph.text = paragraph.text.replace(key, value)
+                            bold = False
+                            underline = False
+                            if key in ["Year of Term", "One (1) Month being the remainder of the term", "Start_Date_in_words", "End_Date_in_words"]:
+                                underline = True
+                            elif key in ["Office Number", "Floor Number", "Parking Capacity", "designated parking spaces", "LETTING OF OFFICE", "designated Office"] and not is_table:
+                                bold = True
+                            apply_replacement(paragraph, key, value, bold=bold, underline=underline, is_table=is_table)
 
             # Process document sections
             for paragraph in document.paragraphs:
@@ -549,7 +542,8 @@ def generate_lease():
                 for header_footer in [section.header, section.footer]:
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
-                            replace_in_paragraph(paragraph)
+                            replace_in_paragraph(paragraph, is_table=False)
+
 
         replace_text_with_formatting(document, replacements)
 
