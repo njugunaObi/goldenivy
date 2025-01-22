@@ -483,7 +483,7 @@ def generate_lease():
         "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
         # Terms to be made bold
         "LETTING OF OFFICE": "LETTING OF OFFICE",
-        "designated Office Page 5": "designated Office",
+        "designated Office": "designated Office",
         "designated parking spaces": "designated parking spaces",
 
     }
@@ -502,35 +502,47 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
-            def apply_replacement(paragraph, key, value, bold=False, underline=False, is_table=False):
-                original_text = paragraph.text
-                new_text = original_text.replace(key, value)
-                paragraph.clear()
-                parts = new_text.split(value)
-                for i, part in enumerate(parts):
-                    if i > 0:
-                        run = paragraph.add_run(value)
-                        run.bold = bold
-                        if underline:
-                            run.font.underline = WD_UNDERLINE.SINGLE
-                    if part:
-                        run = paragraph.add_run(part)
-                        run.bold = False
 
             def replace_in_paragraph(paragraph, is_table=False):
                 if "Tenant Name" in paragraph.text:
-                    apply_replacement(paragraph, "Tenant Name", str(replacements["Tenant Name"]), bold=True)
+                    # Store original text
+                    original_text = paragraph.text
+
+                    # Replace Tenant Name while preserving other text
+                    new_text = original_text.replace(
+                        "Tenant Name", str(replacements["Tenant Name"]))
+
+                    # Clear paragraph
+                    paragraph.clear()
+
+                    # Split text into parts
+                    parts = new_text.split(str(replacements["Tenant Name"]))
+
+                    # Rebuild paragraph with correct formatting
+                    for i, part in enumerate(parts):
+                        if i > 0:  # Add tenant name before remaining parts
+                            run = paragraph.add_run(
+                                str(replacements["Tenant Name"]))
+                            run.bold = True
+                            run.font.size = Pt(12 if is_table else 14)
+                        if part:  # Add non-tenant name part
+                            run = paragraph.add_run(part)
+                            run.bold = False
                 else:
-                    # Handle other replacements with formatting
+                    # Handle other replacements without formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
-                            bold = False
-                            underline = False
-                            if key in ["Year of Term", "One (1) Month being the remainder of the term", "Start_Date_in_words", "End_Date_in_words"]:
-                                underline = True
-                            elif key in ["Office Number Page 1","Office Number Page 5", "Floor Number Page 1", "Parking Capacity", "designated parking spaces", "LETTING OF OFFICE", "designated Office Page 5"] and not is_table:
-                                bold = True
-                            apply_replacement(paragraph, key, value, bold=bold, underline=underline, is_table=is_table)
+                            paragraph.text = paragraph.text.replace(
+                                key, str(value))
+                        # Handle terms that need underlining
+                        if key in paragraph.text and key != "Tenant Name":
+                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
+                                for run in paragraph.runs:
+                                    if key in run.text:
+                                        run.text = run.text.replace(key, value)
+                                        run.font.underline = WD_UNDERLINE.SINGLE
+                            else:
+                                paragraph.text = paragraph.text.replace(key, value)
 
             # Process document sections
             for paragraph in document.paragraphs:
@@ -546,8 +558,7 @@ def generate_lease():
                 for header_footer in [section.header, section.footer]:
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
-                            replace_in_paragraph(paragraph, is_table=False)
-
+                            replace_in_paragraph(paragraph)
 
 
         replace_text_with_formatting(document, replacements)
@@ -618,7 +629,7 @@ def calculate_dates():
         years_of_term = calculate_years_of_term(start_date)
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
         fifth_end_date = datetime.strptime(years_of_term[4][1], "%d/%m/%Y")
-
+        
         # Calculate exact duration
         duration = fifth_end_date - start_date_obj
         total_days = duration.days
@@ -638,3 +649,7 @@ def calculate_dates():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+
+
+
+
