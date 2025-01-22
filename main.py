@@ -439,13 +439,15 @@ def generate_lease():
         "Email Address": data.get("email_address", ""),
         "Physical Location": data.get("physical_location", ""),
         "Office Number Page 1": data.get("office_number", "").upper(),
+        "Office Number Page 5": data.get("office_number", ""),
         "Office Number": data.get("office_number", ""),
-        "Floor Number": data.get("floor_number", "").upper(),
+        "Floor Number Page 1": data.get("floor_number", "").upper(),
+        "Floor Number": data.get("floor_number", ""),
         "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
-        "Start_Date_in_words": f"Start Date: {date_to_words(data.get('start_date'))}",
-        "End_Date_in_words": f"End Date: {date_to_words(fifth_end_date) if fifth_end_date else ''}",
+        "Start_Date_in_words":date_to_words(data.get('start_date')),
+        "End_Date_in_words":date_to_words(fifth_end_date) if fifth_end_date else '',
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -455,6 +457,7 @@ def generate_lease():
         "Town of residence": data.get("town", ""),
         "Floor plan in Sq foot": data.get("floor_plan", ""),
         "Parking Capacity": data.get("parking_capacity", ""),
+        "Parking Capacity Page 5": data.get("parking_capacity", ""),
         "Rate of escalation": format_rate_of_escalation(data["escalation_rate"]),
         "Type of escalation": format_type_of_escalation(data["type_of_escalation"]),
         "Floor of office": format_floor_number(data["floor_number"]),
@@ -473,15 +476,15 @@ def generate_lease():
         "Remainder Beginning Date": remainder_dates[0],
         "Remainder Ending Date": remainder_dates[1],
         # Terms to be underlined
-        "1st Year of Term": f"1st Year of Term: ({years_of_term[0][0]} to {years_of_term[0][1]})",
-        "2nd Year of Term": f"2nd Year of Term: ({years_of_term[1][0]} to {years_of_term[1][1]})",
-        "3rd Year of Term": f"3rd Year of Term: ({years_of_term[2][0]} to {years_of_term[2][1]})",
-        "4th Year of Term": f"4th Year of Term: ({years_of_term[3][0]} to {years_of_term[3][1]})",
-        "5th Year of Term": f"5th Year of Term: ({years_of_term[4][0]} to {years_of_term[4][1]})",
-        "One (1) Month being the remainder of the term": f"One (1) Month being the remainder of the term: ({remainder_dates[0]} to {remainder_dates[1]})",
+        "1st Year of Term": "1st Year of Term",
+        "2nd Year of Term": "2nd Year of Term",
+        "3rd Year of Term": "3rd Year of Term",
+        "4th Year of Term": "4th Year of Term",
+        "5th Year of Term": "5th Year of Term",
+        "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
         # Terms to be made bold
         "LETTING OF OFFICE": "LETTING OF OFFICE",
-        "designated Office": "designated Office",
+        "designated Office Page 5": "designated Office",
         "designated parking spaces": "designated parking spaces",
 
     }
@@ -505,12 +508,11 @@ def generate_lease():
                 new_text = original_text.replace(key, value)
                 paragraph.clear()
                 parts = new_text.split(value)
-                
                 for i, part in enumerate(parts):
                     if i > 0:
                         run = paragraph.add_run(value)
                         run.bold = bold
-                        run.font.size = Pt(14 if not is_table and not hasattr(paragraph, '_is_after_first_page') else 12)
+                        run.font.size = Pt(12 if is_table else 14)
                         if underline:
                             run.font.underline = WD_UNDERLINE.SINGLE
                     if part:
@@ -521,33 +523,16 @@ def generate_lease():
                 if "Tenant Name" in paragraph.text:
                     apply_replacement(paragraph, "Tenant Name", str(replacements["Tenant Name"]), bold=True)
                 else:
+                    # Handle other replacements with formatting
                     for key, value in replacements.items():
                         if key in paragraph.text:
                             bold = False
                             underline = False
-                            
-                            # Underline conditions
-                            if "Year of Term" in key or key in [
-                                "One (1) Month being the remainder of the term",
-                                "Start_Date_in_words",
-                                "End_Date_in_words"
-                            ]: #Underlining of the Years of Term & One (1) Month being the remainder of the term is not being done correctly while the Start_Date_in_words and End_Date_in_words are not being underlined at all.
+                            if key in ["Year of Term", "One (1) Month being the remainder of the term", "Start_Date_in_words", "End_Date_in_words"]:
                                 underline = True
-                            
-                            # Bold conditions (removed 'and not is_table' check)
-                            elif key in [
-                                "Office Number", 
-                                "Floor Number", 
-                                "Parking Capacity", 
-                                "designated parking spaces", 
-                                "LETTING OF OFFICE", 
-                                "designated Office"
-                            ] and not is_table: #Office Number, Parking Capacity, designated Office are not being bolded
+                            elif key in ["Office Number Page 1","Office Number Page 5", "Floor Number Page 1", "Parking Capacity Page 5", "designated parking spaces", "LETTING OF OFFICE", "designated Office Page 5"] and not is_table:
                                 bold = True
-                            
-                            apply_replacement(paragraph, key, value, 
-                                            bold=bold, underline=underline, 
-                                            is_table=is_table)
+                            apply_replacement(paragraph, key, value, bold=bold, underline=underline, is_table=is_table)
 
             # Process document sections
             for paragraph in document.paragraphs:
@@ -564,6 +549,7 @@ def generate_lease():
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
                             replace_in_paragraph(paragraph, is_table=False)
+
 
 
         replace_text_with_formatting(document, replacements)
