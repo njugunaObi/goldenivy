@@ -446,8 +446,8 @@ def generate_lease():
         "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
-        "Start Date in words":date_to_words(data.get('start_date')),
-        "End Date in words":date_to_words(fifth_end_date) if fifth_end_date else '',
+        "Start_Date_in_words":date_to_words(data.get('start_date')),
+        "End_Date_in_words":date_to_words(fifth_end_date) if fifth_end_date else '',
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -511,7 +511,6 @@ def generate_lease():
                     if i > 0:
                         run = paragraph.add_run(value)
                         run.bold = bold
-                        run.font.size = Pt(12 if is_table else 12)
                         if underline:
                             run.font.underline = WD_UNDERLINE.SINGLE
                     if part:
