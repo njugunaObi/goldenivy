@@ -446,8 +446,8 @@ def generate_lease():
         "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
-        "Start_Date_in_words":date_to_words(data.get('start_date')),
-        "End_Date_in_words":date_to_words(fifth_end_date) if fifth_end_date else '',
+        "Start Date in words":date_to_words(data.get('start_date')),
+        "End Date in words":date_to_words(fifth_end_date) if fifth_end_date else '',
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -457,7 +457,6 @@ def generate_lease():
         "Town of residence": data.get("town", ""),
         "Floor plan in Sq foot": data.get("floor_plan", ""),
         "Parking Capacity": data.get("parking_capacity", ""),
-        "Parking Capacity Page 5": data.get("parking_capacity", ""),
         "Rate of escalation": format_rate_of_escalation(data["escalation_rate"]),
         "Type of escalation": format_type_of_escalation(data["type_of_escalation"]),
         "Floor of office": format_floor_number(data["floor_number"]),
@@ -512,7 +511,7 @@ def generate_lease():
                     if i > 0:
                         run = paragraph.add_run(value)
                         run.bold = bold
-                        run.font.size = Pt(12 if is_table else 14)
+                        run.font.size = Pt(12 if is_table else 12)
                         if underline:
                             run.font.underline = WD_UNDERLINE.SINGLE
                     if part:
@@ -530,7 +529,7 @@ def generate_lease():
                             underline = False
                             if key in ["Year of Term", "One (1) Month being the remainder of the term", "Start_Date_in_words", "End_Date_in_words"]:
                                 underline = True
-                            elif key in ["Office Number Page 1","Office Number Page 5", "Floor Number Page 1", "Parking Capacity Page 5", "designated parking spaces", "LETTING OF OFFICE", "designated Office Page 5"] and not is_table:
+                            elif key in ["Office Number Page 1","Office Number Page 5", "Floor Number Page 1", "Parking Capacity", "designated parking spaces", "LETTING OF OFFICE", "designated Office Page 5"] and not is_table:
                                 bold = True
                             apply_replacement(paragraph, key, value, bold=bold, underline=underline, is_table=is_table)
 
