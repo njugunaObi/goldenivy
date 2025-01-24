@@ -457,6 +457,7 @@ def generate_lease():
         "Town of residence": data.get("town", ""),
         "Floor plan in Sq foot": data.get("floor_plan", ""),
         "Parking Capacity": data.get("parking_capacity", ""),
+        "Parking Capacity Page 5": data.get("parking_capacity", ""),
         "Rate of escalation": format_rate_of_escalation(data["escalation_rate"]),
         "Type of escalation": format_type_of_escalation(data["type_of_escalation"]),
         "Floor of office": format_floor_number(data["floor_number"]),
@@ -502,49 +503,71 @@ def generate_lease():
 
         # Replace Text in document and add style formatting
         def replace_text_with_formatting(document, replacements):
+            # Define formatting rules: keys and their corresponding styles
+            formatting_map = {
+                "LETTING OF OFFICE": {'bold': True},
+                "Office Number Page 1": {'bold': True},
+                "Floor Number Page 1": {'bold': True},
+                "Office Number Page 5": {'bold': True},
+                "designated Office": {'bold': True},
+                "Parking Capacity Page 5": {'bold': True},
+                "designated parking spaces": {'bold': True},
+                "Start_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
+                "End_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
+            }
+            formatting_keys = list(formatting_map.keys())
 
             def replace_in_paragraph(paragraph, is_table=False):
-                if "Tenant Name" in paragraph.text:
-                    # Store original text
-                    original_text = paragraph.text
+                original_text = paragraph.text
 
-                    # Replace Tenant Name while preserving other text
-                    new_text = original_text.replace(
-                        "Tenant Name", str(replacements["Tenant Name"]))
-
-                    # Clear paragraph
+                # Process Tenant Name with bold
+                if "Tenant Name" in original_text:
+                    tenant_name = replacements.get("Tenant Name", "Tenant Name")
+                    new_text = original_text.replace("Tenant Name", tenant_name)
+                    parts = new_text.split(tenant_name)
                     paragraph.clear()
-
-                    # Split text into parts
-                    parts = new_text.split(str(replacements["Tenant Name"]))
-
-                    # Rebuild paragraph with correct formatting
                     for i, part in enumerate(parts):
-                        if i > 0:  # Add tenant name before remaining parts
-                            run = paragraph.add_run(
-                                str(replacements["Tenant Name"]))
-                            run.bold = True
-                            run.font.size = Pt(12 if is_table else 14)
-                        if part:  # Add non-tenant name part
+                        if part:
                             run = paragraph.add_run(part)
                             run.bold = False
-                else:
-                    # Handle other replacements without formatting
-                    for key, value in replacements.items():
-                        if key in paragraph.text:
-                            paragraph.text = paragraph.text.replace(
-                                key, str(value))
-                        # Handle terms that need underlining
-                        if key in paragraph.text and key != "Tenant Name":
-                            if "Year of Term" in key or key == "One (1) Month being the remainder of the term":
-                                for run in paragraph.runs:
-                                    if key in run.text:
-                                        run.text = run.text.replace(key, value)
-                                        run.font.underline = WD_UNDERLINE.SINGLE
-                            else:
-                                paragraph.text = paragraph.text.replace(key, value)
+                            run.font.size = Pt(12 if is_table else 14)
+                        if i < len(parts) - 1:
+                            run = paragraph.add_run(tenant_name)
+                            run.bold = True
+                            run.font.size = Pt(12 if is_table else 14)
+                    original_text = paragraph.text
 
-            # Process document sections
+                # Process formatting keys using regex
+                if any(key in original_text for key in formatting_keys):
+                    pattern = re.compile(r'(' + '|'.join(map(re.escape, formatting_keys)) + r')')
+                    parts = pattern.split(original_text)
+                    paragraph.clear()
+                    for part in parts:
+                        if not part:
+                            continue
+                        if part in formatting_keys:
+                            value = replacements.get(part, part)
+                            run = paragraph.add_run(str(value))
+                            # Apply formatting based on formatting_map
+                            style = formatting_map[part]
+                            run.bold = style.get('bold', False)
+                            if 'underline' in style:
+                                run.underline = style['underline']
+                        else:
+                            paragraph.add_run(part)
+                    original_text = paragraph.text
+
+                # Handle other non-formatting replacements in each run
+                for run in paragraph.runs:
+                    current_text = run.text
+                    new_text = current_text
+                    for key, value in replacements.items():
+                        if key not in formatting_keys and key != "Tenant Name":
+                            new_text = new_text.replace(key, str(value))
+                    if new_text != current_text:
+                        run.text = new_text
+
+            # Apply replacements to all document elements
             for paragraph in document.paragraphs:
                 replace_in_paragraph(paragraph)
 
@@ -559,10 +582,8 @@ def generate_lease():
                     if header_footer:
                         for paragraph in header_footer.paragraphs:
                             replace_in_paragraph(paragraph)
-
-
         replace_text_with_formatting(document, replacements)
-
+        
         # logging of keys that have not been replaced
         def log_unmatched_keys(replacements, document):
             """
