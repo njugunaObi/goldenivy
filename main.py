@@ -548,7 +548,6 @@ def generate_lease():
                         if part in formatting_keys:
                             value = replacements.get(part, part)
                             run = paragraph.add_run(str(value))
-                            # Apply formatting based on formatting_map
                             style = formatting_map[part]
                             run.bold = style.get('bold', False)
                             if 'underline' in style:
@@ -557,15 +556,29 @@ def generate_lease():
                             paragraph.add_run(part)
                     original_text = paragraph.text
 
-                # Handle other non-formatting replacements in each run
-                for run in paragraph.runs:
-                    current_text = run.text
-                    new_text = current_text
+                # Handle non-formatting replacements differently for tables
+                if is_table:
+                    # Combine all runs to handle split placeholders
+                    combined_text = ''.join(run.text for run in paragraph.runs)
+                    new_text = combined_text
                     for key, value in replacements.items():
                         if key not in formatting_keys and key != "Tenant Name":
                             new_text = new_text.replace(key, str(value))
-                    if new_text != current_text:
-                        run.text = new_text
+                    if new_text != combined_text:
+                        paragraph.clear()
+                        for text in new_text.split('\n'):
+                            run = paragraph.add_run(text)
+                            run.font.size = Pt(12)
+                else:
+                    # Existing per-run replacement for non-table text
+                    for run in paragraph.runs:
+                        current_text = run.text
+                        new_text = current_text
+                        for key, value in replacements.items():
+                            if key not in formatting_keys and key != "Tenant Name":
+                                new_text = new_text.replace(key, str(value))
+                        if new_text != current_text:
+                            run.text = new_text
 
             # Apply replacements to all document elements
             for paragraph in document.paragraphs:
