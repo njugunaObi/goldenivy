@@ -530,7 +530,7 @@ def generate_lease():
             formatting_keys = list(formatting_map.keys())
 
             def replace_in_paragraph(paragraph, is_table=False):
-                original_text = paragraph.text
+                original_text = paragraph.text  
 
                 # Process Tenant Name with bold
                 if "Tenant Name" in original_text:
@@ -547,8 +547,8 @@ def generate_lease():
                             run = paragraph.add_run(tenant_name)
                             run.bold = True
                             run.font.size = Pt(12 if is_table else 14)
-                    original_text = paragraph.text    
-                    
+                    original_text = paragraph.text 
+                            
                 # Process formatting keys using regex
                 if any(key in original_text for key in formatting_keys):
                     pattern = re.compile(r'(' + '|'.join(map(re.escape, formatting_keys)) + r')')
