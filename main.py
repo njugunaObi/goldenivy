@@ -198,7 +198,7 @@ def generate_lease():
                         current_rent = initial_rent + (initial_rent * rate * year)
                     elif normalized_type == "afterfirsttwoyears" and year >= 2:
                         current_rent = initial_rent + (initial_rent * rate * (year - 1))
-                    elif normalized_type == "everytwoyears" and year % 2 == 0:
+                    elif normalized_type == "everytwoyears":
                         current_rent = initial_rent + (initial_rent * rate * (year // 2))
                     else:
                         current_rent = initial_rent
@@ -539,7 +539,7 @@ def generate_lease():
                     for i, part in enumerate(parts):
                         if part:
                             run = paragraph.add_run(part)
-                            run.bold = True
+                            run.bold = False
                             run.font.size = Pt(12 if is_table else 14)
                         if i < len(parts) - 1:
                             run = paragraph.add_run(tenant_name)
@@ -568,27 +568,29 @@ def generate_lease():
 
                 # Handle non-formatting replacements differently for tables
                 if is_table:
-                    # Combine all runs to handle split placeholders
                     combined_text = ''.join(run.text for run in paragraph.runs)
                     new_text = combined_text
                     for key, value in replacements.items():
                         if key not in formatting_keys and key != "Tenant Name":
                             new_text = new_text.replace(key, str(value))
+                    
                     if new_text != combined_text:
                         paragraph.clear()
-                        for text in new_text.split('\n'):
-                            run = paragraph.add_run(text)
+                        tenant_name = replacements.get("Tenant Name")
+                        # Split and bold tenant name in new_text
+                        if tenant_name and tenant_name in new_text:
+                            parts = new_text.split(tenant_name)
+                            for i, part in enumerate(parts):
+                                if part:
+                                    run = paragraph.add_run(part)
+                                    run.font.size = Pt(12)
+                                if i < len(parts) - 1:
+                                    run = paragraph.add_run(tenant_name)
+                                    run.bold = True
+                                    run.font.size = Pt(12)
+                        else:
+                            run = paragraph.add_run(new_text)
                             run.font.size = Pt(12)
-                else:
-                    # Existing per-run replacement for non-table text
-                    for run in paragraph.runs:
-                        current_text = run.text
-                        new_text = current_text
-                        for key, value in replacements.items():
-                            if key not in formatting_keys and key != "Tenant Name":
-                                new_text = new_text.replace(key, str(value))
-                        if new_text != current_text:
-                            run.text = new_text
 
             # Apply replacements to all document elements
             for paragraph in document.paragraphs:
