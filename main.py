@@ -520,7 +520,11 @@ def generate_lease():
                 "End_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
                 "Starts Dates": {'underline': WD_UNDERLINE.SINGLE},
                 "Fifth Subsequent Finishing Date": {'underline': WD_UNDERLINE.SINGLE},
-                "Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "1st Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "2nd Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "3rd Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "4th Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "5th Year of Term": {'underline': WD_UNDERLINE.SINGLE},
                 "One (1) Month being the remainder of the term": {'underline': WD_UNDERLINE.SINGLE}
             }
             formatting_keys = list(formatting_map.keys())
