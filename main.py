@@ -444,10 +444,12 @@ def generate_lease():
         "Floor Number Page 1": data.get("floor_number", "").upper(),
         "Floor Number": data.get("floor_number", ""),
         "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
+        "Tenants Names": data.get("tenant_name", "").upper(),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
         "Start_Date_in_words":date_to_words(data.get('start_date')),
         "End_Date_in_words":date_to_words(fifth_end_date) if fifth_end_date else '',
+        "Starts Dates": format_date(data.get("start_date")),
         "New or Renew": data.get("new_or_renew", ""),
         "Yearly Rent": f"{number_to_words(yearly_rent)} Only: KSH ({yearly_rent}/-)",
         "Months Rent": f"KSH {monthly_rent}/- Monthly Rent",
@@ -476,6 +478,7 @@ def generate_lease():
         "Remainder Beginning Date": remainder_dates[0],
         "Remainder Ending Date": remainder_dates[1],
         # Terms to be underlined
+        "Fifth Subsequent Finishing Date": formatted_years[4][1],
         "1st Year of Term": "1st Year of Term",
         "2nd Year of Term": "2nd Year of Term",
         "3rd Year of Term": "3rd Year of Term",
@@ -508,12 +511,17 @@ def generate_lease():
                 "LETTING OF OFFICE": {'bold': True},
                 "Office Number Page 1": {'bold': True},
                 "Floor Number Page 1": {'bold': True},
+                "Tenants Names": {'bold': True},
                 "Office Number Page 5": {'bold': True},
                 "designated Office": {'bold': True},
                 "Parking Capacity Page 5": {'bold': True},
                 "designated parking spaces": {'bold': True},
                 "Start_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
                 "End_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
+                "Starts Dates": {'underline': WD_UNDERLINE.SINGLE},
+                "Fifth Subsequent Finishing Date": {'underline': WD_UNDERLINE.SINGLE},
+                "Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "One (1) Month being the remainder of the term": {'underline': WD_UNDERLINE.SINGLE}
             }
             formatting_keys = list(formatting_map.keys())
 
