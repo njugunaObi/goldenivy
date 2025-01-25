@@ -484,7 +484,7 @@ def generate_lease():
         "3rd Years of Terms:": f"3rd Year of Term: ({formatted_years[2][0]} to {formatted_years[2][1]}):",
         "4th Years of Terms:": f"4th Year of Term: ({formatted_years[3][0]} to {formatted_years[3][1]}):",
         "5th Years of Terms:": f"5th Year of Term: ({formatted_years[4][0]} to {formatted_years[4][1]}):",
-        "One (1) Month being the remainder of the term": f"One (1) Month being the remainder of the term: {remainder_dates[0]} to {remainder_dates[1]}",
+        "One (1) Month being the remainder of the term": f"One (1) Month being the remainder of the term: ({remainder_dates[0]} to {remainder_dates[1]}):",
         # Terms to be made bold
         "LETTING OF OFFICE": "LETTING OF OFFICE",
         "designated Office": "designated Office",
