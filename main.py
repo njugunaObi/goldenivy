@@ -479,12 +479,12 @@ def generate_lease():
         "Remainder Ending Date": remainder_dates[1],
         # Terms to be underlined
         "Fifth Subsequent Finishing Date": formatted_years[4][1],
-        "1st Year of Term": "1st Year of Term",
-        "2nd Year of Term": "2nd Year of Term",
-        "3rd Year of Term": "3rd Year of Term",
-        "4th Year of Term": "4th Year of Term",
-        "5th Year of Term": "5th Year of Term",
-        "One (1) Month being the remainder of the term": "One (1) Month being the remainder of the term",
+        "1st Years of Terms:": f"1st Year of Term: ({formatted_years[0][0]} to {formatted_years[0][1]}):",
+        "2nd Years of Terms:": f"2nd Year of Term: ({formatted_years[1][0]} to {formatted_years[1][1]}):",
+        "3rd Years of Terms:": f"3rd Year of Term: ({formatted_years[2][0]} to {formatted_years[2][1]}):",
+        "4th Years of Terms:": f"4th Year of Term: ({formatted_years[3][0]} to {formatted_years[3][1]}):",
+        "5th Years of Terms:": f"5th Year of Term: ({formatted_years[4][0]} to {formatted_years[4][1]}):",
+        "One (1) Month being the remainder of the term": f"One (1) Month being the remainder of the term: {remainder_dates[0]} to {remainder_dates[1]}",
         # Terms to be made bold
         "LETTING OF OFFICE": "LETTING OF OFFICE",
         "designated Office": "designated Office",
@@ -520,11 +520,11 @@ def generate_lease():
                 "End_Date_in_words": {'underline': WD_UNDERLINE.SINGLE},
                 "Starts Dates": {'underline': WD_UNDERLINE.SINGLE},
                 "Fifth Subsequent Finishing Date": {'underline': WD_UNDERLINE.SINGLE},
-                "1st Year of Term": {'underline': WD_UNDERLINE.SINGLE},
-                "2nd Year of Term": {'underline': WD_UNDERLINE.SINGLE},
-                "3rd Year of Term": {'underline': WD_UNDERLINE.SINGLE},
-                "4th Year of Term": {'underline': WD_UNDERLINE.SINGLE},
-                "5th Year of Term": {'underline': WD_UNDERLINE.SINGLE},
+                "1st Years of Terms:": {'underline': WD_UNDERLINE.SINGLE},
+                "2nd Years of Terms:": {'underline': WD_UNDERLINE.SINGLE},
+                "3rd Years of Terms:": {'underline': WD_UNDERLINE.SINGLE},
+                "4th Years of Terms:": {'underline': WD_UNDERLINE.SINGLE},
+                "5th Years of Terms:": {'underline': WD_UNDERLINE.SINGLE},
                 "One (1) Month being the remainder of the term": {'underline': WD_UNDERLINE.SINGLE}
             }
             formatting_keys = list(formatting_map.keys())
