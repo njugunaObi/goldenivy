@@ -444,7 +444,6 @@ def generate_lease():
         "Floor Number Page 1": data.get("floor_number", "").upper(),
         "Floor Number": data.get("floor_number", ""),
         "Date of Lease Entry": format_lease_beginning_date(data["date_of_lease_entry"]),
-        "Persons Names": data.get("tenant_name", "").upper(),
         "Start Date": format_date(data.get("start_date")),
         "End Date": format_date(data.get("fifth_end_date")),
         "Start_Date_in_words":date_to_words(data.get('start_date')),
@@ -511,7 +510,6 @@ def generate_lease():
                 "LETTING OF OFFICE": {'bold': True},
                 "Office Number Page 1": {'bold': True},
                 "Floor Number Page 1": {'bold': True},
-                "Persons Names": {'bold': True},
                 "Office Number Page 5": {'bold': True},
                 "designated Office": {'bold': True},
                 "Parking Capacity Page 5": {'bold': True},
@@ -541,7 +539,7 @@ def generate_lease():
                     for i, part in enumerate(parts):
                         if part:
                             run = paragraph.add_run(part)
-                            run.bold = False
+                            run.bold = True
                             run.font.size = Pt(12 if is_table else 14)
                         if i < len(parts) - 1:
                             run = paragraph.add_run(tenant_name)
