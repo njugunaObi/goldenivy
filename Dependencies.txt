@@ -1,0 +1,687 @@
+git clone https://github.com/your-username/repo1.git
+cd repo1
+git remote add repo2 https://github.com/your-username/repo2.git
+git fetch repo2
+git merge repo2/main --allow-unrelated-histories
+git commit
+git push origin main
+
+my public dns : ec2-34-203-221-136.compute-1.amazonaws.com
+
+my ssh client example; ssh -i "thegoldenkey.pem" ec2-user@ec2-44-203-202-245.compute-1.amazonaws.com
+
+sudo yum install python3 -y
+sudo yum install python3-pip -y
+
+
+pip3 cache purge
+sudo yum clean all
+
+cd frontend
+npm install
+npm start
+
+cd backend
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+
+
+
+sudo yum update -y
+sudo yum install -y python3 python3-pip python3-devel gcc nginx
+
+Site securing starts here;
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/server.key -out /etc/ssl/certs/server.crt
+
+sudo amazon-linux-extras install nginx1 -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+
+echo -e 'server {\n    listen 443 ssl;\n    ec2-user ec2-44-203-202-245.compute-1.amazonaws.com;\n    ssl_certificate /etc/ssl/certs/server.crt;\n    ssl_certificate_key /etc/ssl/private/server.key;\n\n    location / {\n        proxy_pass http://127.0.0.1:8000;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}' | sudo tee /etc/nginx/conf.d/ssl.conf > /dev/null
+
+sudo systemctl reload nginx
+
+Dependenices start from here
+
+on windows cmd
+scp -r -i "C:\Users\DELL\Downloads\thegoldenkey.pem" "C:\Users\DELL\Downloads\goldenivy" ec2-user@ec2-44-203-202-245.compute-1.amazonaws.com:/home/ec2-user/
+
+on amazon linux
+
+sudo yum install python3 -y
+sudo yum install python3-pip -y
+
+
+
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo sh -c 'echo "/swapfile none swap sw 0 0" >> /etc/fstab'
+
+
+sudo pip3 install Flask python-docx python-dateutil gunicorn num2words inflect
+
+
+cd /home/ec2-user/goldenivy
+
+gunicorn -w 4 -b 0.0.0.0:8000 main:app
+
+removing a directory
+cd /home/ec2-user/goldenivy
+rm -r goldenivy
+
+
+
+End
+
+sudo yum update -y
+sudo yum install -y python3 python3-pip python3-devel gcc
+
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo sh -c 'echo "/swapfile none swap sw 0 0" >> /etc/fstab'
+
+
+sudo pip3 install Flask transformers boto3 numpy==1.24.4 sklearn python-docx gunicorn pandas requests
+
+sudo pip3 install --no-cache-dir torch==2.0.1+cpu --index-url https://download.pytorch.org/whl/cpu
+
+sudo yum install -y nginx
+
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo nano /etc/nginx/nginx.conf
+
+server {
+    listen 80;
+    server_name your-ec2-public-ip;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+sudo systemctl restart nginx
+
+
+
+
+gunicorn -w 4 -b 0.0.0.0:8000 main:app
+
+
+
+export FLASK_APP=main.py
+flask run --host=0.0.0.0
+
+gunicorn --workers 3 --bind 0.0.0.0:8000 main:app
+
+
+gunicorn -w 4 -b 0.0.0.0:5000 main:app
+
+
+98.82.182.86
+
+
+Dependancies; 
+scp -i /path/to/your-key-pair.pem /path/to/local/main.py ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/authenticate.py ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/RNN.py ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/lease_rnn_model.h5 ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/tokenizer.pickle ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/rnnleaseagreement.docx ec2-user@your-ec2-public-dns:/home/ec2-user/
+scp -i /path/to/your-key-pair.pem /path/to/local/frontend.html ec2-user@your-ec2-public-dns:/home/ec2-user/static/
+
+file paths; 
+rnnleaseagreement; C:\Users\DELL\OneDrive\Documents\rnnleaseagreement
+frontend.html; C:\Users\DELL\Downloads\goldenivy\templates\frontend.html
+main.py; C:\Users\DELL\Downloads\goldenivy\main.py
+authenticate.py; C:\Users\DELL\Downloads\goldenivy\authenticate.py
+RNN.py; C:\Users\DELL\Downloads\goldenivy\RNN.py
+lease_rnn_model.h5; C:\Users\DELL\Downloads\goldenivy\lease_rnn_model.h5
+tokenizer.pickle; C:\Users\DELL\Downloads\goldenivy\tokenizer.pickle
+
+New dependancies;
+scp -i "goldeninstance.pem" C:\Users\DELL\OneDrive\Documents\rnnleaseagreement.docx ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\templates\frontend.html ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/static/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\main.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\authenticate.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\RNN.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\lease_rnn_model.h5 ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "goldeninstance.pem" C:\Users\DELL\Downloads\goldenivy\tokenizer.pickle ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+
+
+C:\Users\DELL\Downloads\goldeninstance.pem
+
+
+New dependancies;
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\OneDrive\Documents\rnnleaseagreement.docx ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\templates\frontend.html ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/static/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\main.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\authenticate.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\RNN.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\lease_rnn_model.h5 ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i C:\Users\DELL\Downloads\goldeninstance.pem C:\Users\DELL\Downloads\goldenivy\tokenizer.pickle ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+
+
+Newer dependencies;
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\OneDrive\\Documents\\rnnleaseagreement.docx ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\templates\\frontend.html ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/static/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\main.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\authenticate.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\RNN.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\lease_rnn_model.h5 ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i "C:\\Users\\DELL\\Downloads\\goldeninstance.pem" C:\\Users\\DELL\\Downloads\\goldenivy\\tokenizer.pickle ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+
+
+Newer Newer dependencies
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/OneDrive/Documents/rnnleaseagreement.docx ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/templates/frontend.html ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/static/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/main.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/authenticate.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/RNN.py ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/lease_rnn_model.h5 ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+scp -i /c/Users/DELL/Downloads/goldeninstance.pem /c/Users/DELL/Downloads/goldenivy/tokenizer.pickle ec2-user@ec2-34-203-221-136.compute-1.amazonaws.com:/home/ec2-user/
+
+
+
+
+
+Okay, I want to update and fix the calculation of the subsequent years of term, remainder dates and the rent escalation. The purpose of this is to ensure its easy for the site to implement on the backend and replace the words on the template with the appropriate words, figures and dates as well as have it seamlessly intergrate with the current working code. 
+
+Lets begin with the subsequent years of term;
+The subsequent years of term calculation are basically the Start Date and End Date from the 2nd Year of Term to the 5th Year of Term. Ho do I want this to work? Well, when I select the Start Date and End Date for the 1st Year of Term, it should do two things; 1. Replace the words on the template with the selections made.(It already does this beautifully) 2. The End Date is to be taken and 7 days to be added on. The date that it gives after this addition is the Start Date for the next Year of Term. Lets have an example; Suppose I selected on the UI 12/11/1997(dd/mm//yy) as my Start Date and 12/11/1998 as my End Date.These two dates will replace the Start Date and End Date words on the lease template with the dates (This part of the code already works). The End Date now, 12/11/1998 will have 7 days added to it making it 17/11/1999. This new year 17/11/1999 will be the Start Date of the 2nd Year of Term. The End Date will now be one year from the Start Date, in this case it will be 17/11/2000. The same logic goes on for the other Years of Term. The words to replace now will be all be linked to their Years of Term, for example 2nd Year of Term: (Second Subsequent-Starting-Date to Second Subsequent-Ending-Date). The words to be replaced on the lease template are Second Subsequent Starting Date and Second Subsequent Ending Date. As you can tell the “Second” is an indicator that its for the 2nd Year of Term. The others to be replaced are; Third Subsequent Starting Date and Third Subsequent Ending Date.(for the 3rd Year of Term), Fourth Subsequent Starting Date and Fourth Subsequent Ending Date. (for the 4th Year of Term), Fifth Subsequent Starting Date and Fifth Subsequent Ending Date.(for the 5th Year of Term). The words are written as is on the lease template
+
+Moving on to Remainder Date:
+For this one its fairly simple, the calculation should take the month that the Fifth Subsequent Ending Date landed on and basically just give the dates of that month. Here is an example, suppose our Fifth Subsequent Ending Date is 12/11/2000 (dd/mm/yy), the month we landed on is November so the Remainder Dates should be 1/11/2000 for the Remainder Beginning Date and 30/11/2000 for the Remainder Ending Date. Super Simple. The words on the lease to be replaced are Remainder Beginning Date and Remainder Ending Date
+Hopefully this has been understood, I want you now to take a look at my current working coe snippets and write the logic necessary to update the specified areas while keeping consistency and everything in working order. Make it super simple and seamless as well to understand and implement.
+Here is the code;
+Main.py
+from flask import Flask, request, send_file, render_template, jsonify
+from docx import Document
+import os
+from datetime import datetime, timedelta
+from num2words import num2words
+from docx.shared import Pt
+import logging
+
+# At the top of your script
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+
+# Serve the frontend page
+@app.route("/")
+def index():
+    return render_template("frontend.html")
+
+
+@app.route("/generate", methods=["POST"])
+def generate_lease():
+    try:
+
+        # Collect data from the UI
+        data = request.json
+        tenant_name = data.get("tenant_name").upper()  # Convert to uppercase
+        phone_number = data.get("phone_number")
+        email_address = data.get("email_address")
+        physical_address = data.get("physical_address")
+        date_of_lease_entry = data.get("date_of_lease_entry", None)
+        start_date = data.get("start_date", None)
+        end_date = data.get("end_date", None)
+        lease_duration = data.get("lease_duration")
+        floor_plan = data.get("floor_plan")
+        office_number = data.get("office_number")
+        floor_number = data.get("floor_number").upper()
+        po_box = data.get("po_box")
+        post_code = data.get("post_code")
+        town = data.get("town")
+        parking_capacity = data.get("parking_capacity")
+        escalation_rate = (data.get("escalation_rate"))
+        escalation_type = data.get("type_of_escalation")
+        yearly_rent = int(data.get("yearly_rent", 0))
+        monthly_rent = yearly_rent // 12
+        new_or_renew = data.get("new_or_renew")
+
+        # Convert date to "DD-MM-YYYY"
+        def format_date(date_str):
+            # Check if date_str is None or an empty string
+            if not date_str:
+                # Use current date as default if no date is provided
+                return datetime.now().strftime("%d-%m-%Y")
+
+            try:
+                # Attempt to parse the date
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                return date_obj.strftime("%d-%m-%Y")
+            except ValueError:
+                # If date format is invalid, use current date
+                return datetime.now().strftime("%d-%m-%Y")
+        # Use the modified format_date function
+        start_date_formatted = format_date(start_date)
+        end_date_formatted = format_date(end_date)
+        lease_entry_formatted = format_date(date_of_lease_entry)
+
+        # Calculate subsequent years of term
+        def calculate_years_of_term(start_date, end_date, terms=5):
+            dates = []
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            for i in range(terms):
+                next_end = start + timedelta(days=365)
+                dates.append((start.strftime("%d-%m-%Y"), next_end.strftime("%d-%m-%Y")))
+                start = next_end
+            return dates
+
+        years_of_term = calculate_years_of_term(start_date, end_date)
+
+        # Calculate remainder dates
+        def calculate_remainder(end_date):
+            end_date_obj = datetime.strptime(end_date, "%d-%m-%Y")
+            start_of_month = end_date_obj.replace(day=1)
+            end_of_month = start_of_month + timedelta(days=31)
+            end_of_month = end_of_month.replace(day=1) - timedelta(days=1)
+            return start_of_month.strftime("%d-%m-%Y"), end_of_month.strftime("%d-%m-%Y")
+
+        remainder_start, remainder_end = calculate_remainder(years_of_term[-1][1])
+
+        # Calculate rent escalation
+        def calculate_escalation(base_rent, rate, escalation_type, terms=5):
+            escalations = []
+            for year in range(terms):
+                if (escalation_type == "Yearly") or (escalation_type == "After-First-Two-Years" and year >= 2) or (
+                        escalation_type == "Every-Two-Years" and year % 2 == 0):
+                    base_rent += base_rent * rate
+                escalations.append(int(base_rent))
+            return escalations
+
+        escalated_rents = calculate_escalation(yearly_rent, escalation_rate, escalation_type)
+
+        # Convert dates to words
+        def date_to_words(date_str):
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            day = int(date_obj.strftime("%d"))
+            day_words = {1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth", 6: "Sixth", 7: "Seventh", 8: "Eighth", 9: "Ninth", 10: "Tenth", 11: "Eleventh", 12: "Twelfth", 13: "Thirteenth", 14: "Fourteenth", 15: "Fifteenth", 16: "Sixteenth", 17: "Seventeenth", 18: "Eighteenth", 19: "Nineteenth", 20: "Twentieth", 21: "Twenty-first", 22: "Twenty-second", 23: "Twenty-third", 24: "Twenty-fourth", 25: "Twenty-fifth", 26: "Twenty-sixth", 27: "Twenty-seventh", 28: "Twenty-eighth", 29: "Twenty-ninth", 30: "Thirtieth", 31: "Thirty-first"}.get(day)
+            month_words = date_obj.strftime("%B")
+            year_words = date_obj.strftime("%Y")
+            return f"{day_words} {month_words} {year_words}"
+
+        start_date_words = date_to_words(start_date)
+        end_date_words = date_to_words(end_date)
+
+        # Convert numbers to words
+        def number_to_words(number):
+            from num2words import num2words
+            return num2words(number, lang="en").capitalize()
+
+        yearly_rent_words = number_to_words(yearly_rent)
+        monthly_rent_words = number_to_words(monthly_rent)
+
+        yearly_rent_text = f"{yearly_rent_words}: KSH {yearly_rent}"
+        monthly_rent_text = f"{monthly_rent_words}: KSH {monthly_rent}"
+
+        # Ensure the template exists
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(script_dir, "Golden Ivy Lease Template.docx")
+        output_path = os.path.join(script_dir, "generated_lease.docx")
+
+        if not os.path.exists(template_path):
+            return jsonify({"error": "Template file not found!"}), 500
+
+        # Load the lease document template
+        document = Document(template_path)
+
+        # Replace placeholders
+        replacements = {
+            "Tenant Name": tenant_name,
+            "Phone Number": phone_number,
+            "Email Address": email_address,
+            "Physical Address": physical_address,
+            "Office Number": office_number,
+            "Floor Number": floor_number,
+            "Date of Lease Entry": lease_entry_formatted,
+            "Start Date": start_date_formatted,
+            "End Date": end_date_formatted,
+            "Start_Date_in_words": start_date_words,
+            "End_Date_in_words": end_date_words,
+            "New or Renew": new_or_renew,
+            "Yearly Rent": yearly_rent_text,
+            "Monthly Rent": monthly_rent_text,
+            "Remainder Start Date": remainder_start,
+            "Remainder End Date": remainder_end,
+            "Lease Term": lease_duration,
+            "PO Box number": po_box,
+            "post code": post_code,
+            "Town of residence": town,
+            "Floor plan in Sq foot": floor_plan,
+            "Parking Capacity": parking_capacity,
+            "Rate of escalation": escalation_rate,
+        }
+
+        # Add years of term replacements
+        for i, (term_start, term_end) in enumerate(years_of_term):
+            replacements[f"{i + 2}nd Term Start Date"] = term_start
+            replacements[f"{i + 2}nd Term End Date"] = term_end
+
+        # Add rent escalations
+        for i, rent in enumerate(escalated_rents[1:], start=2):
+            rent_words = number_to_words(rent)
+            monthly_rent = rent // 12
+            monthly_rent_words = number_to_words(monthly_rent)
+            replacements[f"{i}nd Year of Term Yearly Rental Calculation"] = f"{rent_words}: KSH {rent}"
+            replacements[f"{i}nd Year of Term Monthly Rental Calculation"] = f"{monthly_rent_words}: KSH {monthly_rent}"
+
+        # Replace Text in document and add style formatting
+        def replace_text_with_formatting(document, replacements):
+            """
+            Enhanced text replacement function to ensure thorough replacement across
+            the entire document, including headers, footers, and all text runs.
+            """
+            # Replace in paragraphs
+            for paragraph in document.paragraphs:
+                for key, value in replacements.items():
+                    if key in paragraph.text:
+                        # Completely replace the text in the paragraph
+                        paragraph.text = paragraph.text.replace(key, str(value))
+
+                        # Apply special formatting for specific keys
+                        if key == "Tenant Name":
+                            for run in paragraph.runs:
+                                run.bold = True
+
+            # Replace in tables
+            for table in document.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            for key, value in replacements.items():
+                                if key in paragraph.text:
+                                    paragraph.text = paragraph.text.replace(key, str(value))
+
+            # Replace in headers
+            for section in document.sections:
+                for header in [section.header, section.first_page_header, section.even_page_header]:
+                    for paragraph in header.paragraphs:
+                        for key, value in replacements.items():
+                            if key in paragraph.text:
+                                paragraph.text = paragraph.text.replace(key, str(value))
+
+            # Replace in footers
+            for section in document.sections:
+                for footer in [section.footer, section.first_page_footer, section.even_page_footer]:
+                    for paragraph in footer.paragraphs:
+                        for key, value in replacements.items():
+                            if key in paragraph.text:
+                                paragraph.text = paragraph.text.replace(key, str(value))
+
+        replace_text_with_formatting(document, replacements)
+
+        # Save the updated document
+        document.save(output_path)
+
+        # Send the generated document to the client
+        return send_file(output_path, as_attachment=True)
+
+    # In your generate_lease function, replace the generic exception handler
+    except Exception as e:
+        logger.error(f"Lease generation error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate the lease. Please check your input and try again."}), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
+
+frontend.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lease Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f5e7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #34495e;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 10px;
+        }
+
+        .example-hint {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: -15px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        // Function to calculate lease duration in months and days
+        function calculateLeaseDuration() {
+            const startDate = document.getElementById("start_date").value;
+            const endDate = document.getElementById("end_date").value;
+
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                if (start <= end) {
+                    const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+                    const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) % 30;
+                    const leaseTerm = `${months} months ${days} days`;
+                    document.getElementById("lease_duration").value = leaseTerm;
+                } else {
+                    document.getElementById("lease_duration").value = "Invalid Dates";
+                }
+            }
+        }
+
+        // Function to autocalculate Monthly Rent
+        function calculateMonthlyRent() {
+            const yearlyRent = document.getElementById("yearly_rent").value;
+            if (yearlyRent) {
+                const monthlyRent = Math.round(parseInt(yearlyRent) / 12);
+                document.getElementById("monthly_rent").value = monthlyRent;
+            }
+        }
+
+        function validateLeaseForm() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    if (!startDate || !endDate) {
+        alert('Please provide both start and end dates');
+        return false;
+    }
+
+    return true;
+}
+        // Function to send data and generate the lease document
+        function generateLease() {
+            const data = {
+                tenant_name: document.getElementById("tenant_name").value,
+                phone_number: document.getElementById("phone_number").value,
+                email_address: document.getElementById("email_address").value,
+                physical_address: document.getElementById("physical_address").value,
+                start_date: document.getElementById("start_date").value,
+                end_date: document.getElementById("end_date").value,
+                lease_duration: document.getElementById("lease_duration").value,
+                floor_plan: document.getElementById("floor_plan").value,
+                office_number: document.getElementById("office_number").value,
+                floor_number: document.getElementById("floor_number").value,
+                po_box: document.getElementById("po_box").value,
+                post_code: document.getElementById("post_code").value,
+                town: document.getElementById("town").value,
+                parking_capacity: document.getElementById("parking_capacity").value,
+                escalation_rate: document.getElementById("escalation_rate").value,
+                yearly_rent: document.getElementById("yearly_rent").value,
+                monthly_rent: document.getElementById("monthly_rent").value,
+                lease_type: document.getElementById("lease_type").value,
+            };
+
+            fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error("Error generating lease");
+                    return response.blob();
+                })
+                .then((blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "lease_document.docx";
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch((error) => {
+    console.error("Error:", error);
+    alert("Failed to generate the lease. Please check your input.");
+});
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Lease Generator</h1>
+        <form>
+            <label for="tenant_name">Tenant Name:</label>
+            <input type="text" id="tenant_name" required>
+
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" id="phone_number" required>
+
+            <label for="email_address">Email Address:</label>
+            <input type="email" id="email_address" required>
+
+            <label for="physical_address">Physical Address:</label>
+            <input type="text" id="physical_address" required>
+
+            <label for="date_of_lease_entry">Date of Lease Entry</label>
+            <input type="date" id="date_of_lease_entry" name="date_of_lease_entry" required>
+
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" required onchange="calculateLeaseDuration()">
+
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" required onchange="calculateLeaseDuration()">
+
+            <label for="lease_duration">Lease Duration:</label>
+            <input type="text" id="lease_duration" readonly>
+
+            <label for="lease_type">Lease Type:</label>
+            <select id="lease_type">
+                <option value="New Lease">New Lease</option>
+                <option value="Renew Lease">Renew Lease</option>
+            </select>
+            <p class="example-hint">Note: For New Lease, only "1st Year of Term" applies. For Renew Lease, start from "2nd Year of Term".</p>
+
+            <label for="yearly_rent">Yearly Rent:</label>
+            <input type="number" id="yearly_rent" required oninput="calculateMonthlyRent()">
+
+            <label for="monthly_rent">Monthly Rent:</label>
+            <input type="text" id="monthly_rent" readonly>
+
+            <label for="office_number">Office Number:</label>
+            <input type="text" id="office_number" placeholder="Example One(1)">
+            <p class="example-hint">Example: One(1)</p>
+
+            <label for="floor_number">Floor Number:</label>
+            <input type="text" id="floor_number">
+            <p class="example-hint">Example: Floor Three ".</p>
+
+
+            <label for="po_box">PO Box:</label>
+            <input type="text" id="po_box">
+
+            <label for="post_code">Post Code:</label>
+            <input type="text" id="post_code">
+
+            <label for="town">Town of Residence:</label>
+            <input type="text" id="town">
+
+            <label for="floor_plan">Floor Plan (sq. ft):</label>
+            <input type="text" id="floor_plan">
+            <p class="example-hint">Example: 756 ".</p>
+
+            <label for="parking_capacity">Parking Capacity:</label>
+            <input type="text" id="parking_capacity">
+            <p class="example-hint">Example: Two(2) ".</p>
+
+            <label for="escalation_rate">Rate of Escalation:</label>
+            <input type="text" id="escalation_rate">
+            <p class="example-hint">Example: Ten(10)% ".</p>
+
+            <label for="type_of_escalation">Type of Escalation</label>
+            <select id="type_of_escalation" name="type_of_escalation" required>
+            <option value="Yearly">Yearly</option>
+            <option value="After-First-Two-Years">After First Two Years</option>
+            <option value="Every-Two-Years">Every Two Years</option>
+            </select>
+
+            <button type="button" onclick="generateLease()">Generate Lease</button>
+
+        </form>
+
+    </div>
+</body>
+</html>
