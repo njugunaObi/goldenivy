@@ -1,0 +1,6 @@
+Flask 
+python-docx 
+python-dateutil 
+gunicorn 
+num2words 
+inflect
